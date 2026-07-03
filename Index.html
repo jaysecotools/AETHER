@@ -4,12 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AETHER - Environmental Field Management</title>
-    
-    <!-- Load Leaflet CSS first -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <style>
         * {
             margin: 0;
@@ -25,7 +20,6 @@
             overflow: hidden;
         }
 
-        /* Scrollbar Styling */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -38,7 +32,6 @@
             border-radius: 10px;
         }
 
-        /* App Container */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -174,7 +167,6 @@
             border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Main Content */
         .main-content {
             display: flex;
             flex: 1;
@@ -182,7 +174,7 @@
             position: relative;
         }
 
-        /* Left Panel - Project Sidebar */
+        /* Left Panel */
         .left-panel {
             width: 320px;
             min-width: 320px;
@@ -221,7 +213,6 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 1px solid transparent;
-            position: relative;
         }
 
         .project-card:hover {
@@ -290,17 +281,88 @@
             transition: width 0.6s ease;
         }
 
-        /* Map Area */
+        /* Map Container - Simplified without Leaflet */
         .map-container {
             flex: 1;
             position: relative;
             background: #0a0e17;
+            overflow: hidden;
         }
 
-        #map {
+        .map-placeholder {
             width: 100%;
             height: 100%;
-            background: #0a0e17;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            background: radial-gradient(ellipse at center, #111927, #0a0e17);
+            position: relative;
+        }
+
+        .map-placeholder .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .map-placeholder .map-icon {
+            font-size: 64px;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .map-placeholder .map-text {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            z-index: 1;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .map-placeholder .map-text strong {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .map-placeholder .observation-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .map-placeholder .observation-point:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 30px rgba(0, 100, 255, 0.5);
+        }
+
+        .map-placeholder .observation-point.water {
+            background: linear-gradient(135deg, #67e8f9, #0284c7);
+        }
+        .map-placeholder .observation-point.vegetation {
+            background: linear-gradient(135deg, #4ade80, #16a34a);
+        }
+        .map-placeholder .observation-point.species {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+        }
+        .map-placeholder .observation-point.soil {
+            background: linear-gradient(135deg, #fb923c, #ea580c);
+        }
+        .map-placeholder .observation-point.general {
+            background: linear-gradient(135deg, #a78bfa, #7c3aed);
         }
 
         .map-controls {
@@ -310,7 +372,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            z-index: 1000;
+            z-index: 10;
         }
 
         .map-control-btn {
@@ -334,7 +396,7 @@
             transform: scale(1.05);
         }
 
-        /* Bottom Panel - Observation Panel */
+        /* Bottom Panel */
         .bottom-panel {
             position: absolute;
             bottom: 0;
@@ -386,12 +448,11 @@
         .observation-item {
             display: flex;
             gap: 14px;
-            padding: 12px 0;
+            padding: 12px 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             align-items: flex-start;
             cursor: pointer;
             transition: background 0.2s;
-            padding: 12px 8px;
             border-radius: 8px;
             margin: 0 -8px;
         }
@@ -419,12 +480,6 @@
             align-items: center;
             justify-content: center;
             font-size: 30px;
-        }
-
-        .obs-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         .obs-details {
@@ -456,26 +511,11 @@
             display: inline-block;
         }
 
-        .obs-tag.water {
-            background: rgba(0, 200, 255, 0.12);
-            color: #67e8f9;
-        }
-        .obs-tag.vegetation {
-            background: rgba(74, 222, 128, 0.12);
-            color: #4ade80;
-        }
-        .obs-tag.species {
-            background: rgba(251, 191, 36, 0.12);
-            color: #fbbf24;
-        }
-        .obs-tag.soil {
-            background: rgba(251, 146, 60, 0.12);
-            color: #fb923c;
-        }
-        .obs-tag.general {
-            background: rgba(167, 139, 250, 0.12);
-            color: #a78bfa;
-        }
+        .obs-tag.water { background: rgba(0, 200, 255, 0.12); color: #67e8f9; }
+        .obs-tag.vegetation { background: rgba(74, 222, 128, 0.12); color: #4ade80; }
+        .obs-tag.species { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+        .obs-tag.soil { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
+        .obs-tag.general { background: rgba(167, 139, 250, 0.12); color: #a78bfa; }
 
         .obs-actions {
             display: flex;
@@ -663,7 +703,7 @@
             box-shadow: 0 8px 30px rgba(0, 100, 255, 0.3);
         }
 
-        /* Toast Notification */
+        /* Toast */
         .toast {
             position: fixed;
             top: 80px;
@@ -696,12 +736,18 @@
             font-size: 13px;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
-            .left-panel {
-                width: 280px;
-                min-width: 280px;
-            }
+            .left-panel { width: 280px; min-width: 280px; }
         }
 
         @media (max-width: 768px) {
@@ -717,87 +763,28 @@
                 background: rgba(15, 22, 34, 0.98);
                 backdrop-filter: blur(20px);
             }
-
-            .left-panel.open {
-                transform: translateX(0);
-            }
-
-            .top-bar {
-                padding: 8px 16px;
-            }
-
-            .search-box {
-                min-width: 120px;
-            }
-
-            .search-box input {
-                font-size: 13px;
-            }
-
-            .top-bar-btn span:not(.emoji) {
-                display: none;
-            }
-
-            .bottom-panel {
-                padding: 12px 16px;
-            }
-
-            .modal {
-                padding: 24px;
-                margin: 12px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .quick-add-btn {
-                bottom: 70px;
-                right: 16px;
-                width: 48px;
-                height: 48px;
-                font-size: 24px;
-            }
+            .left-panel.open { transform: translateX(0); }
+            .top-bar { padding: 8px 16px; }
+            .search-box { min-width: 120px; }
+            .search-box input { font-size: 13px; }
+            .top-bar-btn span:not(.emoji) { display: none; }
+            .bottom-panel { padding: 12px 16px; }
+            .modal { padding: 24px; margin: 12px; }
+            .form-row { grid-template-columns: 1fr; }
+            .quick-add-btn { bottom: 70px; right: 16px; width: 48px; height: 48px; font-size: 24px; }
         }
 
         @media (max-width: 480px) {
-            .logo-text {
-                font-size: 16px;
-            }
-
-            .top-bar-actions {
-                gap: 8px;
-            }
-
-            .search-box {
-                min-width: 80px;
-                padding: 6px 12px;
-            }
-
-            .observation-item {
-                flex-direction: column;
-            }
-
-            .obs-thumb {
-                width: 100%;
-                height: 120px;
-            }
-        }
-
-        /* Animation keyframes */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.3s ease;
+            .logo-text { font-size: 16px; }
+            .top-bar-actions { gap: 8px; }
+            .search-box { min-width: 80px; padding: 6px 12px; }
+            .observation-item { flex-direction: column; }
+            .obs-thumb { width: 100%; height: 120px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- App Container -->
     <div class="app-container">
         <!-- Top Bar -->
         <header class="top-bar">
@@ -808,17 +795,11 @@
             <div class="top-bar-actions">
                 <div class="search-box">
                     <span class="search-icon">⌕</span>
-                    <input type="text" placeholder="Search projects, sites..." id="searchInput">
+                    <input type="text" placeholder="Search projects..." id="searchInput">
                 </div>
-                <button class="top-bar-btn" id="menuToggle" aria-label="Toggle menu">
-                    <span>☰</span>
-                    <span>Menu</span>
-                </button>
-                <button class="top-bar-btn primary" id="newProjectBtn">
-                    <span>+</span>
-                    <span>New Project</span>
-                </button>
-                <div class="avatar" title="User Profile">JD</div>
+                <button class="top-bar-btn" id="menuToggle">☰ <span>Menu</span></button>
+                <button class="top-bar-btn primary" id="newProjectBtn">+ <span>New Project</span></button>
+                <div class="avatar">JD</div>
             </div>
         </header>
 
@@ -828,34 +809,35 @@
             <aside class="left-panel" id="leftPanel">
                 <div class="panel-header">
                     <div class="panel-title">Active <span>Projects</span></div>
-                    <span style="font-size:12px; color:rgba(255,255,255,0.3);" id="projectCount">4</span>
+                    <span style="font-size:12px; color:rgba(255,255,255,0.3);" id="projectCount">0</span>
                 </div>
-
-                <div id="projectList">
-                    <!-- Projects rendered by JavaScript -->
-                </div>
-
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04);">
-                    <div class="panel-title" style="margin-bottom: 12px;">Recent <span>Observations</span></div>
-                    <div id="recentObservations">
-                        <!-- Rendered by JavaScript -->
-                    </div>
+                <div id="projectList"></div>
+                <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.04);">
+                    <div class="panel-title" style="margin-bottom:12px;">Recent <span>Observations</span></div>
+                    <div id="recentObservations"></div>
                 </div>
             </aside>
 
             <!-- Map Container -->
             <div class="map-container">
-                <div id="map"></div>
-
-                <!-- Map Controls -->
-                <div class="map-controls">
-                    <button class="map-control-btn" id="zoomIn" aria-label="Zoom in">+</button>
-                    <button class="map-control-btn" id="zoomOut" aria-label="Zoom out">−</button>
-                    <button class="map-control-btn" id="locateMe" aria-label="Locate me">⌖</button>
+                <div class="map-placeholder" id="mapPlaceholder">
+                    <div class="grid-overlay"></div>
+                    <div class="map-icon">🗺️</div>
+                    <div class="map-text">
+                        <strong>AETHER Map View</strong><br>
+                        Click the + button to add observations<br>
+                        <span style="font-size:12px; opacity:0.6;">Observations appear as colored dots</span>
+                    </div>
+                    <div id="mapPoints"></div>
                 </div>
 
-                <!-- Quick Add Button -->
-                <button class="quick-add-btn" id="quickAddBtn" aria-label="Quick add observation">+</button>
+                <div class="map-controls">
+                    <button class="map-control-btn" id="zoomIn">+</button>
+                    <button class="map-control-btn" id="zoomOut">−</button>
+                    <button class="map-control-btn" id="locateMe">⌖</button>
+                </div>
+
+                <button class="quick-add-btn" id="quickAddBtn">+</button>
 
                 <!-- Bottom Panel -->
                 <div class="bottom-panel" id="bottomPanel">
@@ -865,9 +847,7 @@
                             <div style="font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:12px;">
                                 Recent Activity — <span id="obsCount">0</span> observations
                             </div>
-                            <div id="observationFeed">
-                                <!-- Rendered by JavaScript -->
-                            </div>
+                            <div id="observationFeed"></div>
                         </div>
                     </div>
                 </div>
@@ -904,7 +884,7 @@
                     <input class="form-input" type="text" id="formTitle" placeholder="e.g., Creek Sampling Point 3" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Notes (or speak with voice)</label>
+                    <label class="form-label">Notes</label>
                     <textarea class="form-input form-textarea" id="formNotes" placeholder="Describe what you observed..."></textarea>
                 </div>
                 <div class="form-row">
@@ -918,8 +898,8 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Photo URL (optional)</label>
-                    <input class="form-input" type="text" id="formPhoto" placeholder="https://example.com/photo.jpg">
+                    <label class="form-label">Emoji (optional)</label>
+                    <input class="form-input" type="text" id="formPhoto" placeholder="🌿, 💧, 🦋, etc." maxlength="2">
                 </div>
                 <button type="submit" class="form-submit">Save Observation</button>
             </form>
@@ -932,13 +912,10 @@
         <div class="toast-message" id="toastMessage">Observation saved</div>
     </div>
 
-    <!-- Load Leaflet JavaScript after DOM -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
         // ============================================================
-        // AETHER - Complete Application Logic
-        // Version 1.0 - Single File Prototype
+        // AETHER - Complete Application (No External Dependencies)
+        // Version 1.0 - GDB Online Compatible
         // ============================================================
 
         // --- Data Store ---
@@ -983,18 +960,18 @@
         // --- Sample Observations ---
         function generateSampleObservations() {
             const samples = [
-                { title: 'Water Sample - Site A', type: 'water', notes: 'pH 7.2, turbidity moderate, DO 7.8 mg/L', lat: -37.8136,
-                    lng: 144.9631, photo: '🌊' },
-                { title: 'Vegetation Transect #3', type: 'vegetation', notes: 'Dense canopy cover, understory dominated by Acacia melanoxylon',
-                    lat: -37.8136, lng: 144.9631, photo: '🌿' },
-                { title: 'Platypus Sighting', type: 'species', notes: 'Observed at 8:15 AM near the log jam', lat: -37.8136,
-                    lng: 144.9631, photo: '🦆' },
-                { title: 'Soil Sample - Zone 2', type: 'soil', notes: 'Clay loam, high organic matter, pH 6.5', lat: -37.8136,
-                    lng: 144.9631, photo: '🧪' },
-                { title: 'Water Quality - Downstream', type: 'water', notes: 'pH 6.9, turbidity low, excellent clarity', lat: -37
-                        .8136, lng: 144.9631, photo: '💧' },
+                { title: 'Water Sample - Site A', type: 'water', notes: 'pH 7.2, turbidity moderate, DO 7.8 mg/L', 
+                  lat: -37.8136, lng: 144.9631, photo: '🌊' },
+                { title: 'Vegetation Transect #3', type: 'vegetation', notes: 'Dense canopy cover, understory dominated by Acacia',
+                  lat: -37.8136, lng: 144.9631, photo: '🌿' },
+                { title: 'Platypus Sighting', type: 'species', notes: 'Observed at 8:15 AM near the log jam',
+                  lat: -37.8136, lng: 144.9631, photo: '🦆' },
+                { title: 'Soil Sample - Zone 2', type: 'soil', notes: 'Clay loam, high organic matter, pH 6.5',
+                  lat: -37.8136, lng: 144.9631, photo: '🧪' },
+                { title: 'Water Quality - Downstream', type: 'water', notes: 'pH 6.9, turbidity low, excellent clarity',
+                  lat: -37.8136, lng: 144.9631, photo: '💧' },
                 { title: 'Koala Sighting', type: 'species', notes: 'Adult male in Eucalyptus tree, approximately 4 years old',
-                    lat: -37.8136, lng: 144.9631, photo: '🐨' }
+                  lat: -37.8136, lng: 144.9631, photo: '🐨' }
             ];
 
             samples.forEach((s, i) => {
@@ -1007,24 +984,22 @@
                     lat: s.lat + (Math.random() - 0.5) * 0.005,
                     lng: s.lng + (Math.random() - 0.5) * 0.005,
                     photo: s.photo,
-                    timestamp: new Date(Date.now() - i * 3600000).toISOString(),
-                    createdAt: new Date(Date.now() - i * 3600000).toISOString()
+                    timestamp: new Date(Date.now() - i * 3600000).toISOString()
                 };
                 Store.observations.push(obs);
                 Store.projects[0].observations.push(obs.id);
             });
 
-            // Add observations to other projects
             const extraObs = [
-                { title: 'Dune Profile #2', type: 'general', notes: 'Erosion visible on foredune, 2m retreat', lat: -38.3901,
-                    lng: 142.4823, projectId: 'proj-2', photo: '🏖️' },
+                { title: 'Dune Profile #2', type: 'general', notes: 'Erosion visible on foredune, 2m retreat', 
+                  lat: -38.3901, lng: 142.4823, projectId: 'proj-2', photo: '🏖️' },
                 { title: 'Native Grass Survey', type: 'vegetation', notes: 'Good regeneration after planting, 80% coverage',
-                    lat: -37.9564, lng: 145.1786, projectId: 'proj-3', photo: '🌾' },
-                { title: 'Water Sample - Dam', type: 'water', notes: 'pH 7.5, algae present, turbidity high', lat: -27.4680,
-                    lng: 153.0234, projectId: 'proj-4', photo: '🟢' }
+                  lat: -37.9564, lng: 145.1786, projectId: 'proj-3', photo: '🌾' },
+                { title: 'Water Sample - Dam', type: 'water', notes: 'pH 7.5, algae present, turbidity high',
+                  lat: -27.4680, lng: 153.0234, projectId: 'proj-4', photo: '🟢' }
             ];
 
-            extraObs.forEach((s, i) => {
+            extraObs.forEach((s) => {
                 const obs = {
                     id: `obs-${Store.observations.length + 1}`,
                     projectId: s.projectId,
@@ -1033,9 +1008,8 @@
                     notes: s.notes || '',
                     lat: s.lat + (Math.random() - 0.5) * 0.005,
                     lng: s.lng + (Math.random() - 0.5) * 0.005,
-                    photo: s.photo || ['🌲', '🌳', '🌱', '🏞️', '📊'][i % 5],
-                    timestamp: new Date(Date.now() - (i + 3) * 7200000).toISOString(),
-                    createdAt: new Date(Date.now() - (i + 3) * 7200000).toISOString()
+                    photo: s.photo || '📝',
+                    timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString()
                 };
                 Store.observations.push(obs);
                 const project = Store.projects.find(p => p.id === s.projectId);
@@ -1045,15 +1019,13 @@
         generateSampleObservations();
 
         // --- State ---
-        let map = null;
-        let markers = [];
         let isPanelExpanded = false;
         let selectedObservationId = null;
-        let mapInitialized = false;
+        let zoomLevel = 12;
+        let mapCenter = { lat: -37.8136, lng: 144.9631 };
 
         // --- DOM References ---
-        const $ = (id) => document.getElementById(id);
-        const mapContainer = $('map');
+        const $ = id => document.getElementById(id);
         const projectList = $('projectList');
         const observationFeed = $('observationFeed');
         const recentObservations = $('recentObservations');
@@ -1077,6 +1049,8 @@
         const menuToggle = $('menuToggle');
         const leftPanel = $('leftPanel');
         const searchInput = $('searchInput');
+        const mapPoints = $('mapPoints');
+        const mapPlaceholder = $('mapPlaceholder');
         const toast = $('toast');
         const toastTitle = $('toastTitle');
         const toastMessage = $('toastMessage');
@@ -1094,334 +1068,211 @@
             }, duration);
         }
 
-        // --- Map Initialization ---
-        function initMap() {
-            try {
-                if (typeof L === 'undefined') {
-                    console.error('Leaflet not loaded');
-                    setTimeout(initMap, 500);
-                    return;
-                }
-
-                map = L.map('map', {
-                    center: [-37.8136, 144.9631],
-                    zoom: 12,
-                    zoomControl: false,
-                    attributionControl: false
-                });
-
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB',
-                    subdomains: 'abcd',
-                    maxZoom: 19
-                }).addTo(map);
-
-                // Add attribution manually
-                const attribution = L.control.attribution({ position: 'bottomright' });
-                attribution.addAttribution('&copy; OpenStreetMap contributors &copy; CartoDB');
-                attribution.addTo(map);
-
-                // Zoom controls
-                $('zoomIn').addEventListener('click', () => map.zoomIn());
-                $('zoomOut').addEventListener('click', () => map.zoomOut());
-
-                // Locate user
-                $('locateMe').addEventListener('click', () => {
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                            (pos) => {
-                                map.setView([pos.coords.latitude, pos.coords.longitude], 15);
-                                showToast('Location Found', 'Map centered on your location');
-                            },
-                            () => {
-                                showToast('Location Error', 'Unable to get your location. Using default.');
-                                map.setView([-37.8136, 144.9631], 12);
-                            }
-                        );
-                    } else {
-                        showToast('Not Supported', 'Geolocation is not supported by your browser');
-                    }
-                });
-
-                // Click on map to add observation
-                map.on('click', (e) => {
-                    const lat = e.latlng.lat.toFixed(6);
-                    const lng = e.latlng.lng.toFixed(6);
-                    formLat.value = lat;
-                    formLng.value = lng;
-                    openModal('New Observation');
-                    showToast('Location Set', `Coordinates: ${lat}, ${lng}`);
-                });
-
-                mapInitialized = true;
-                
-                // Load markers
-                updateMapMarkers();
-
-                // Resize map on window resize
-                window.addEventListener('resize', () => {
-                    if (map) setTimeout(() => map.invalidateSize(), 100);
-                });
-
-                // Initial resize after a moment
-                setTimeout(() => {
-                    if (map) map.invalidateSize();
-                }, 500);
-
-                console.log('✅ Map initialized successfully');
-            } catch (error) {
-                console.error('Map initialization error:', error);
-                // Show a fallback message on the map
-                const mapEl = document.getElementById('map');
-                if (mapEl) {
-                    mapEl.innerHTML = `
-                        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.3);flex-direction:column;gap:12px;">
-                            <div style="font-size:48px;">🗺️</div>
-                            <div>Map loading error</div>
-                            <div style="font-size:12px;">Please refresh the page</div>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // --- Map Markers ---
-        function updateMapMarkers() {
-            if (!map || !mapInitialized) return;
-
-            // Clear existing markers
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-
-            // Show observations for active project
-            const activeProject = Store.projects.find(p => p.id === Store.activeProjectId);
-            if (!activeProject) return;
+        // --- Map Rendering (Simple DOM-based) ---
+        function renderMapPoints() {
+            if (!mapPoints) return;
+            
+            const project = Store.projects.find(p => p.id === Store.activeProjectId);
+            if (!project) return;
 
             const projectObs = Store.observations.filter(o => o.projectId === Store.activeProjectId);
+            
+            // Clear existing points
+            mapPoints.innerHTML = '';
 
-            // Also show project location
-            try {
-                const projectMarker = L.circleMarker([activeProject.location.lat, activeProject.location.lng], {
-                    radius: 8,
-                    fillColor: '#00d4ff',
-                    color: '#0066ff',
-                    weight: 2,
-                    opacity: 0.6,
-                    fillOpacity: 0.3
-                }).addTo(map);
-                projectMarker.bindPopup(`<strong>${activeProject.name}</strong><br>${activeProject.client}`);
-                markers.push(projectMarker);
-            } catch (e) {
-                console.warn('Error adding project marker:', e);
-            }
+            // Calculate positions relative to the map container
+            const container = mapPlaceholder;
+            const rect = container.getBoundingClientRect();
+            const containerWidth = container.clientWidth || 800;
+            const containerHeight = container.clientHeight || 500;
 
-            // Observation markers
+            // Define bounds (roughly Melbourne area)
+            const bounds = {
+                minLat: -38.5,
+                maxLat: -37.5,
+                minLng: 143.5,
+                maxLng: 145.5
+            };
+
+            // Add project marker
+            const projX = ((project.location.lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * containerWidth;
+            const projY = ((project.location.lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * containerHeight;
+            
+            const projDot = document.createElement('div');
+            projDot.className = 'observation-point';
+            projDot.style.left = Math.max(10, Math.min(containerWidth - 10, projX)) + 'px';
+            projDot.style.top = Math.max(10, Math.min(containerHeight - 10, projY)) + 'px';
+            projDot.style.width = '16px';
+            projDot.style.height = '16px';
+            projDot.style.background = 'linear-gradient(135deg, #00d4ff, #0066ff)';
+            projDot.style.boxShadow = '0 0 30px rgba(0,100,255,0.3)';
+            projDot.title = project.name;
+            mapPoints.appendChild(projDot);
+
+            // Add observation markers
             projectObs.forEach(obs => {
-                try {
-                    const colorMap = {
-                        water: '#67e8f9',
-                        vegetation: '#4ade80',
-                        species: '#fbbf24',
-                        soil: '#fb923c',
-                        general: '#a78bfa'
-                    };
-                    const color = colorMap[obs.type] || '#a78bfa';
+                const x = ((obs.lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * containerWidth;
+                const y = ((obs.lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * containerHeight;
+                
+                // Only show if within bounds
+                if (x < 0 || x > containerWidth || y < 0 || y > containerHeight) return;
 
-                    const marker = L.circleMarker([obs.lat, obs.lng], {
-                        radius: 6,
-                        fillColor: color,
-                        color: 'rgba(255,255,255,0.2)',
-                        weight: 1.5,
-                        opacity: 0.8,
-                        fillOpacity: 0.9
-                    }).addTo(map);
-
-                    const typeLabel = obs.type.charAt(0).toUpperCase() + obs.type.slice(1);
-                    marker.bindPopup(`
-                                <div style="color:#0a0e17; font-family: 'Inter', sans-serif; max-width:200px;">
-                                    <strong>${obs.title}</strong><br>
-                                    <span style="font-size:12px; color:#666;">${typeLabel}</span><br>
-                                    <span style="font-size:12px; color:#666;">${new Date(obs.timestamp).toLocaleDateString()}</span>
-                                    ${obs.photo ? `<br><span style="font-size:24px;">${obs.photo}</span>` : ''}
-                                    <br><button onclick="window.selectObservation('${obs.id}')" 
-                                            style="margin-top:6px; background:#0066ff; color:#fff; border:none; 
-                                                   padding:4px 12px; border-radius:6px; cursor:pointer; font-size:12px;">
-                                        View Details
-                                    </button>
-                                </div>
-                            `);
-
-                    markers.push(marker);
-                } catch (e) {
-                    console.warn('Error adding observation marker:', e);
-                }
+                const dot = document.createElement('div');
+                dot.className = `observation-point ${obs.type}`;
+                dot.style.left = Math.max(5, Math.min(containerWidth - 5, x)) + 'px';
+                dot.style.top = Math.max(5, Math.min(containerHeight - 5, y)) + 'px';
+                dot.style.width = '12px';
+                dot.style.height = '12px';
+                dot.title = `${obs.title} (${obs.type})`;
+                
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectObservation(obs.id);
+                });
+                
+                // Show emoji on hover
+                dot.addEventListener('mouseenter', () => {
+                    dot.style.transform = 'scale(1.5)';
+                    dot.style.zIndex = '10';
+                });
+                dot.addEventListener('mouseleave', () => {
+                    dot.style.transform = 'scale(1)';
+                    dot.style.zIndex = '2';
+                });
+                
+                mapPoints.appendChild(dot);
             });
-
-            // Fit map to show all markers
-            if (markers.length > 1) {
-                try {
-                    const group = L.featureGroup(markers);
-                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
-                } catch (e) {
-                    console.warn('Error fitting bounds:', e);
-                }
-            }
         }
 
         // --- Select Observation ---
-        window.selectObservation = function(obsId) {
+        function selectObservation(obsId) {
             const obs = Store.observations.find(o => o.id === obsId);
             if (!obs) return;
             selectedObservationId = obsId;
             expandPanel();
             renderObservationFeed();
+            renderMapPoints();
             showToast('Observation Selected', obs.title);
-
-            // Highlight on map
-            if (map && mapInitialized) {
-                // Find the marker by checking its popup content
-                markers.forEach(marker => {
-                    try {
-                        const popup = marker.getPopup();
-                        if (popup && popup.getContent) {
-                            const content = popup.getContent();
-                            if (content && content.includes(obsId)) {
-                                map.setView(marker.getLatLng(), 16);
-                                marker.openPopup();
-                            }
-                        }
-                    } catch (e) {
-                        // Skip this marker
-                    }
-                });
-            }
-        };
+        }
 
         // --- Render Projects ---
         function renderProjects() {
+            if (!projectList) return;
             projectList.innerHTML = Store.projects.map(p => `
-                        <div class="project-card ${p.id === Store.activeProjectId ? 'active' : ''}" 
-                             data-project-id="${p.id}" onclick="window.switchProject('${p.id}')">
-                            <div class="project-card-header">
-                                <div class="project-name">${p.name}</div>
-                                <div class="project-status ${p.status === 'warning' ? 'warning' : ''}">
-                                    ${p.status === 'active' ? '● Active' : '⚠ Warning'}
-                                </div>
-                            </div>
-                            <div class="project-meta">
-                                <span>👤 ${p.client}</span>
-                                <span>📋 ${p.observations.length} obs</span>
-                            </div>
-                            <div class="project-progress">
-                                <div class="project-progress-bar" style="width: ${p.progress}%"></div>
-                            </div>
+                <div class="project-card ${p.id === Store.activeProjectId ? 'active' : ''}" 
+                     data-project-id="${p.id}" onclick="switchProject('${p.id}')">
+                    <div class="project-card-header">
+                        <div class="project-name">${p.name}</div>
+                        <div class="project-status ${p.status === 'warning' ? 'warning' : ''}">
+                            ${p.status === 'active' ? '● Active' : '⚠ Warning'}
                         </div>
-                    `).join('');
-            projectCount.textContent = Store.projects.length;
+                    </div>
+                    <div class="project-meta">
+                        <span>👤 ${p.client}</span>
+                        <span>📋 ${p.observations.length} obs</span>
+                    </div>
+                    <div class="project-progress">
+                        <div class="project-progress-bar" style="width: ${p.progress}%"></div>
+                    </div>
+                </div>
+            `).join('');
+            if (projectCount) projectCount.textContent = Store.projects.length;
         }
 
         // --- Switch Project ---
-        window.switchProject = function(projectId) {
+        function switchProject(projectId) {
             Store.activeProjectId = projectId;
             renderProjects();
-            updateMapMarkers();
             renderObservationFeed();
             renderRecentObservations();
+            renderMapPoints();
             updateObsCount();
 
-            // Close panel on mobile
             if (window.innerWidth <= 768) {
                 leftPanel.classList.remove('open');
             }
 
             const project = Store.projects.find(p => p.id === projectId);
-            if (project) {
-                showToast('Project Switched', project.name);
-            }
-        };
+            if (project) showToast('Project Switched', project.name);
+        }
 
         // --- Render Observation Feed ---
         function renderObservationFeed() {
+            if (!observationFeed) return;
+            
             const projectObs = Store.observations
                 .filter(o => o.projectId === Store.activeProjectId)
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             if (projectObs.length === 0) {
                 observationFeed.innerHTML = `
-                            <div style="text-align:center; padding:40px 0; color:rgba(255,255,255,0.2);">
-                                <div style="font-size:40px; margin-bottom:12px;">🌿</div>
-                                <div>No observations yet</div>
-                                <div style="font-size:12px; margin-top:4px;">Tap + to add your first observation</div>
-                            </div>
-                        `;
+                    <div style="text-align:center; padding:40px 0; color:rgba(255,255,255,0.2);">
+                        <div style="font-size:40px; margin-bottom:12px;">🌿</div>
+                        <div>No observations yet</div>
+                        <div style="font-size:12px; margin-top:4px;">Tap + to add your first observation</div>
+                    </div>
+                `;
                 return;
             }
 
             observationFeed.innerHTML = projectObs.map(obs => `
-                        <div class="observation-item ${obs.id === selectedObservationId ? 'active' : ''}" 
-                             onclick="window.selectObservation('${obs.id}')">
-                            <div class="obs-thumb">
-                                ${obs.photo ? (obs.photo.startsWith('http') ? `<img src="${obs.photo}" alt="${obs.title}">` : obs.photo) : '📷'}
-                            </div>
-                            <div class="obs-details">
-                                <div class="obs-title">${obs.title}</div>
-                                <div class="obs-meta">
-                                    <span>${new Date(obs.timestamp).toLocaleDateString()}</span>
-                                    <span class="obs-tag ${obs.type}">${obs.type}</span>
-                                    ${obs.notes ? `<span>📝 ${obs.notes.substring(0, 60)}${obs.notes.length > 60 ? '...' : ''}</span>` : ''}
-                                </div>
-                                <div class="obs-actions">
-                                    <button onclick="event.stopPropagation(); window.selectObservation('${obs.id}')">View</button>
-                                    <button onclick="event.stopPropagation(); window.deleteObservation('${obs.id}')">Delete</button>
-                                </div>
-                            </div>
+                <div class="observation-item ${obs.id === selectedObservationId ? 'active' : ''}" 
+                     onclick="selectObservation('${obs.id}')">
+                    <div class="obs-thumb">${obs.photo || '📷'}</div>
+                    <div class="obs-details">
+                        <div class="obs-title">${obs.title}</div>
+                        <div class="obs-meta">
+                            <span>${new Date(obs.timestamp).toLocaleDateString()}</span>
+                            <span class="obs-tag ${obs.type}">${obs.type}</span>
+                            ${obs.notes ? `<span>📝 ${obs.notes.substring(0, 60)}${obs.notes.length > 60 ? '...' : ''}</span>` : ''}
                         </div>
-                    `).join('');
+                        <div class="obs-actions">
+                            <button onclick="event.stopPropagation(); selectObservation('${obs.id}')">View</button>
+                            <button onclick="event.stopPropagation(); deleteObservation('${obs.id}')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
 
             updateObsCount();
         }
 
-        // --- Render Recent Observations (sidebar) ---
+        // --- Render Recent Observations ---
         function renderRecentObservations() {
+            if (!recentObservations) return;
+            
             const allObs = Store.observations
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                 .slice(0, 4);
 
             if (allObs.length === 0) {
                 recentObservations.innerHTML = `
-                            <div style="font-size:13px; color:rgba(255,255,255,0.2); text-align:center; padding:12px 0;">
-                                No recent observations
-                            </div>
-                        `;
+                    <div style="font-size:13px; color:rgba(255,255,255,0.2); text-align:center; padding:12px 0;">
+                        No recent observations
+                    </div>
+                `;
                 return;
             }
 
-            const typeEmoji = {
-                water: '💧',
-                vegetation: '🌿',
-                species: '🦋',
-                soil: '🧪',
-                general: '📝'
-            };
-
             recentObservations.innerHTML = allObs.map(obs => `
-                        <div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); cursor:pointer;"
-                             onclick="window.switchProject('${obs.projectId}'); window.selectObservation('${obs.id}')">
-                            <span style="font-size:18px;">${typeEmoji[obs.type] || '📝'}</span>
-                            <div style="flex:1; min-width:0;">
-                                <div style="font-size:13px; color:#e8edf5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                    ${obs.title}
-                                </div>
-                                <div style="font-size:11px; color:rgba(255,255,255,0.3);">
-                                    ${new Date(obs.timestamp).toLocaleDateString()}
-                                </div>
-                            </div>
+                <div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); cursor:pointer;"
+                     onclick="switchProject('${obs.projectId}'); selectObservation('${obs.id}')">
+                    <span style="font-size:18px;">${obs.photo || '📝'}</span>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-size:13px; color:#e8edf5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${obs.title}
                         </div>
-                    `).join('');
+                        <div style="font-size:11px; color:rgba(255,255,255,0.3);">
+                            ${new Date(obs.timestamp).toLocaleDateString()}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // --- Update Observation Count ---
         function updateObsCount() {
+            if (!obsCount) return;
             const count = Store.observations.filter(o => o.projectId === Store.activeProjectId).length;
             obsCount.textContent = count;
         }
@@ -1438,22 +1289,19 @@
         }
 
         function togglePanel() {
-            if (isPanelExpanded) {
-                collapsePanel();
-            } else {
-                expandPanel();
-            }
+            if (isPanelExpanded) collapsePanel();
+            else expandPanel();
         }
 
         // --- Modal ---
         function openModal(title) {
             modalTitle.textContent = title || 'New Observation';
             modalOverlay.classList.add('active');
-            // Populate project dropdown
+            
             formProject.innerHTML = Store.projects.map(p =>
                 `<option value="${p.id}" ${p.id === Store.activeProjectId ? 'selected' : ''}>${p.name}</option>`
             ).join('');
-            // Set default location from active project
+            
             const project = Store.projects.find(p => p.id === Store.activeProjectId);
             if (project) {
                 formLat.value = project.location.lat.toFixed(6);
@@ -1467,7 +1315,7 @@
         }
 
         // --- Delete Observation ---
-        window.deleteObservation = function(obsId) {
+        function deleteObservation(obsId) {
             if (!confirm('Delete this observation?')) return;
             const obs = Store.observations.find(o => o.id === obsId);
             if (obs) {
@@ -1476,16 +1324,14 @@
                 if (project) {
                     project.observations = project.observations.filter(id => id !== obsId);
                 }
-                if (selectedObservationId === obsId) {
-                    selectedObservationId = null;
-                }
+                if (selectedObservationId === obsId) selectedObservationId = null;
                 renderObservationFeed();
                 renderRecentObservations();
-                updateMapMarkers();
+                renderMapPoints();
                 updateObsCount();
                 showToast('Deleted', `"${obs.title}" removed`);
             }
-        };
+        }
 
         // --- Save Observation ---
         function saveObservation(e) {
@@ -1497,15 +1343,10 @@
             const notes = formNotes.value.trim();
             const lat = parseFloat(formLat.value);
             const lng = parseFloat(formLng.value);
-            const photo = formPhoto.value.trim();
+            const photo = formPhoto.value.trim() || '📝';
 
-            if (!projectId || !title) {
+            if (!projectId || !title || isNaN(lat) || isNaN(lng)) {
                 showToast('Error', 'Please fill in all required fields');
-                return;
-            }
-
-            if (isNaN(lat) || isNaN(lng)) {
-                showToast('Error', 'Please enter valid coordinates');
                 return;
             }
 
@@ -1517,24 +1358,20 @@
                 notes: notes || '',
                 lat: lat,
                 lng: lng,
-                photo: photo || ['💧', '🌿', '🦋', '🧪', '📝'][Math.floor(Math.random() * 5)],
-                timestamp: new Date().toISOString(),
-                createdAt: new Date().toISOString()
+                photo: photo,
+                timestamp: new Date().toISOString()
             };
 
             Store.observations.push(newObs);
             const project = Store.projects.find(p => p.id === projectId);
-            if (project) {
-                project.observations.push(newObs.id);
-            }
+            if (project) project.observations.push(newObs.id);
 
-            // Switch to the project if not active
             if (projectId !== Store.activeProjectId) {
                 switchProject(projectId);
             } else {
                 renderObservationFeed();
                 renderRecentObservations();
-                updateMapMarkers();
+                renderMapPoints();
                 updateObsCount();
             }
 
@@ -1542,10 +1379,7 @@
             expandPanel();
             showToast('Observation Saved', `"${title}" added to ${project ? project.name : 'project'}`);
 
-            // Highlight the new observation
-            setTimeout(() => {
-                selectObservation(newObs.id);
-            }, 300);
+            setTimeout(() => selectObservation(newObs.id), 300);
         }
 
         // --- New Project ---
@@ -1582,116 +1416,93 @@
                 return;
             }
 
-            // Filter projects
             const filteredProjects = Store.projects.filter(p =>
-                p.name.toLowerCase().includes(q) ||
-                p.client.toLowerCase().includes(q)
+                p.name.toLowerCase().includes(q) || p.client.toLowerCase().includes(q)
             );
 
-            // Filter observations
             const filteredObs = Store.observations.filter(o =>
                 o.title.toLowerCase().includes(q) ||
                 o.notes.toLowerCase().includes(q) ||
                 o.type.toLowerCase().includes(q)
             );
 
-            // Update UI
             if (filteredProjects.length > 0) {
                 projectList.innerHTML = filteredProjects.map(p => `
-                            <div class="project-card ${p.id === Store.activeProjectId ? 'active' : ''}" 
-                                 data-project-id="${p.id}" onclick="window.switchProject('${p.id}')">
-                                <div class="project-card-header">
-                                    <div class="project-name">${p.name}</div>
-                                    <div class="project-status ${p.status === 'warning' ? 'warning' : ''}">
-                                        ${p.status === 'active' ? '● Active' : '⚠ Warning'}
-                                    </div>
-                                </div>
-                                <div class="project-meta">
-                                    <span>👤 ${p.client}</span>
-                                    <span>📋 ${p.observations.length} obs</span>
-                                </div>
-                                <div class="project-progress">
-                                    <div class="project-progress-bar" style="width: ${p.progress}%"></div>
-                                </div>
+                    <div class="project-card ${p.id === Store.activeProjectId ? 'active' : ''}" 
+                         onclick="switchProject('${p.id}')">
+                        <div class="project-card-header">
+                            <div class="project-name">${p.name}</div>
+                            <div class="project-status ${p.status === 'warning' ? 'warning' : ''}">
+                                ${p.status === 'active' ? '● Active' : '⚠ Warning'}
                             </div>
-                        `).join('');
+                        </div>
+                        <div class="project-meta">
+                            <span>👤 ${p.client}</span>
+                            <span>📋 ${p.observations.length} obs</span>
+                        </div>
+                        <div class="project-progress">
+                            <div class="project-progress-bar" style="width: ${p.progress}%"></div>
+                        </div>
+                    </div>
+                `).join('');
             } else {
                 projectList.innerHTML = `<div style="color:rgba(255,255,255,0.2); text-align:center; padding:20px;">No projects found</div>`;
             }
 
             if (filteredObs.length > 0) {
                 observationFeed.innerHTML = filteredObs.map(obs => `
-                            <div class="observation-item">
-                                <div class="obs-thumb">${obs.photo || '📷'}</div>
-                                <div class="obs-details">
-                                    <div class="obs-title">${obs.title}</div>
-                                    <div class="obs-meta">
-                                        <span>${new Date(obs.timestamp).toLocaleDateString()}</span>
-                                        <span class="obs-tag ${obs.type}">${obs.type}</span>
-                                    </div>
-                                </div>
+                    <div class="observation-item">
+                        <div class="obs-thumb">${obs.photo || '📷'}</div>
+                        <div class="obs-details">
+                            <div class="obs-title">${obs.title}</div>
+                            <div class="obs-meta">
+                                <span>${new Date(obs.timestamp).toLocaleDateString()}</span>
+                                <span class="obs-tag ${obs.type}">${obs.type}</span>
                             </div>
-                        `).join('');
+                        </div>
+                    </div>
+                `).join('');
             } else {
-                observationFeed.innerHTML =
-                    `<div style="color:rgba(255,255,255,0.2); text-align:center; padding:20px;">No observations found</div>`;
+                observationFeed.innerHTML = `<div style="color:rgba(255,255,255,0.2); text-align:center; padding:20px;">No observations found</div>`;
             }
         }
 
-        // --- Event Listeners Setup ---
-        function setupEventListeners() {
-            // Panel toggle
-            panelHandle.addEventListener('click', togglePanel);
-            bottomPanel.addEventListener('click', (e) => {
-                if (e.target === bottomPanel || e.target === panelHandle) return;
-                if (!isPanelExpanded) expandPanel();
-            });
-
-            // Quick add
-            quickAddBtn.addEventListener('click', () => {
-                openModal('New Observation');
-            });
-
-            // New project
-            newProjectBtn.addEventListener('click', createNewProject);
-
-            // Menu toggle (mobile)
-            menuToggle.addEventListener('click', () => {
-                leftPanel.classList.toggle('open');
-            });
-
-            // Modal controls
-            modalClose.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) closeModal();
-            });
-
-            // Form submit
-            observationForm.addEventListener('submit', saveObservation);
-
-            // Search
-            searchInput.addEventListener('input', (e) => {
-                handleSearch(e.target.value);
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    if (modalOverlay.classList.contains('active')) {
-                        closeModal();
-                    }
-                    if (isPanelExpanded) {
-                        collapsePanel();
-                    }
-                }
-                if (e.ctrlKey && e.key === 'n') {
-                    e.preventDefault();
-                    openModal('New Observation');
-                }
-            });
+        // --- Map Controls ---
+        function handleZoomIn() {
+            zoomLevel = Math.min(zoomLevel + 1, 18);
+            renderMapPoints();
+            showToast('Zoom', `Level ${zoomLevel}`);
         }
 
-        // --- Initialize Application ---
+        function handleZoomOut() {
+            zoomLevel = Math.max(zoomLevel - 1, 1);
+            renderMapPoints();
+            showToast('Zoom', `Level ${zoomLevel}`);
+        }
+
+        function handleLocate() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        mapCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                        renderMapPoints();
+                        showToast('Location Found', 'Map centered on your location');
+                    },
+                    () => {
+                        showToast('Location Error', 'Unable to get your location');
+                    }
+                );
+            } else {
+                showToast('Not Supported', 'Geolocation is not supported');
+            }
+        }
+
+        // --- Resize Handler ---
+        function handleResize() {
+            renderMapPoints();
+        }
+
+        // --- Initialize ---
         function init() {
             console.log('🌿 AETHER v1.0 initializing...');
 
@@ -1700,61 +1511,66 @@
                 renderProjects();
                 renderObservationFeed();
                 renderRecentObservations();
+                renderMapPoints();
                 updateObsCount();
 
-                // Initialize map
-                initMap();
+                // Event Listeners
+                panelHandle.addEventListener('click', togglePanel);
+                bottomPanel.addEventListener('click', (e) => {
+                    if (e.target === bottomPanel || e.target === panelHandle) return;
+                    if (!isPanelExpanded) expandPanel();
+                });
 
-                // Setup event listeners
-                setupEventListeners();
+                quickAddBtn.addEventListener('click', () => openModal('New Observation'));
+                newProjectBtn.addEventListener('click', createNewProject);
+                menuToggle.addEventListener('click', () => leftPanel.classList.toggle('open'));
+                modalClose.addEventListener('click', closeModal);
+                modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === modalOverlay) closeModal();
+                });
+                observationForm.addEventListener('submit', saveObservation);
+                searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
 
-                // Auto-expand panel on first load
-                setTimeout(() => {
-                    expandPanel();
-                }, 600);
+                document.getElementById('zoomIn').addEventListener('click', handleZoomIn);
+                document.getElementById('zoomOut').addEventListener('click', handleZoomOut);
+                document.getElementById('locateMe').addEventListener('click', handleLocate);
+
+                window.addEventListener('resize', handleResize);
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (modalOverlay.classList.contains('active')) closeModal();
+                        if (isPanelExpanded) collapsePanel();
+                    }
+                    if (e.ctrlKey && e.key === 'n') {
+                        e.preventDefault();
+                        openModal('New Observation');
+                    }
+                });
+
+                // Auto-expand panel
+                setTimeout(expandPanel, 600);
 
                 console.log(`✅ AETHER v1.0 loaded successfully`);
                 console.log(`📊 ${Store.projects.length} projects, ${Store.observations.length} observations`);
                 console.log(`📍 Active project: ${Store.projects.find(p => p.id === Store.activeProjectId)?.name}`);
             } catch (error) {
                 console.error('❌ Initialization error:', error);
-                showToast('Error', 'Failed to initialize application. Please refresh.');
+                showToast('Error', 'Failed to initialize application');
             }
         }
 
-        // Run on page load - wait for DOM and Leaflet
+        // Expose functions globally
+        window.switchProject = switchProject;
+        window.selectObservation = selectObservation;
+        window.deleteObservation = deleteObservation;
+
+        // Run on page load
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
             init();
         }
-
-        // Fallback: ensure Leaflet is loaded
-        let leafletCheckAttempts = 0;
-        function checkLeaflet() {
-            if (typeof L !== 'undefined') {
-                console.log('✅ Leaflet loaded successfully');
-                return;
-            }
-            leafletCheckAttempts++;
-            if (leafletCheckAttempts < 10) {
-                console.log(`⏳ Waiting for Leaflet... (attempt ${leafletCheckAttempts})`);
-                setTimeout(checkLeaflet, 500);
-            } else {
-                console.error('❌ Leaflet failed to load');
-                const mapEl = document.getElementById('map');
-                if (mapEl) {
-                    mapEl.innerHTML = `
-                        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.3);flex-direction:column;gap:12px;padding:20px;text-align:center;">
-                            <div style="font-size:48px;">🗺️</div>
-                            <div>Map library failed to load</div>
-                            <div style="font-size:12px;max-width:300px;">Please check your internet connection and refresh the page</div>
-                        </div>
-                    `;
-                }
-            }
-        }
-        setTimeout(checkLeaflet, 100);
     </script>
 
 </body>
