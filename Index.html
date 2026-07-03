@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AETHER - Environmental Field Management</title>
+    <title>AETHER Field Notes v2.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -25,7 +25,7 @@
             height: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
         }
         ::-webkit-scrollbar-thumb {
             background: rgba(100, 200, 255, 0.3);
@@ -54,6 +54,8 @@
             z-index: 100;
             flex-shrink: 0;
             min-height: 60px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .logo-section {
@@ -85,10 +87,21 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .badge {
+            font-size: 10px;
+            background: rgba(0, 180, 255, 0.15);
+            color: #80d0ff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
         .top-bar-actions {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .search-box {
@@ -99,7 +112,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            min-width: 200px;
+            min-width: 180px;
         }
 
         .search-box input {
@@ -116,11 +129,6 @@
             color: rgba(255, 255, 255, 0.3);
         }
 
-        .search-icon {
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 16px;
-        }
-
         .top-bar-btn {
             background: rgba(255, 255, 255, 0.06);
             border: none;
@@ -128,7 +136,7 @@
             padding: 8px 16px;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-family: 'Inter', sans-serif;
             transition: all 0.2s;
             display: flex;
@@ -150,6 +158,16 @@
         .top-bar-btn.primary:hover {
             transform: translateY(-1px);
             box-shadow: 0 8px 30px rgba(0, 100, 255, 0.3);
+        }
+
+        .top-bar-btn.success {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.15);
+        }
+
+        .top-bar-btn.success:hover {
+            background: rgba(74, 222, 128, 0.25);
         }
 
         .avatar {
@@ -281,7 +299,7 @@
             transition: width 0.6s ease;
         }
 
-        /* Map Container - Simplified without Leaflet */
+        /* Map Container */
         .map-container {
             flex: 1;
             position: relative;
@@ -289,80 +307,10 @@
             overflow: hidden;
         }
 
-        .map-placeholder {
+        #map {
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 20px;
-            background: radial-gradient(ellipse at center, #111927, #0a0e17);
-            position: relative;
-        }
-
-        .map-placeholder .grid-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-        }
-
-        .map-placeholder .map-icon {
-            font-size: 64px;
-            opacity: 0.3;
-            z-index: 1;
-        }
-
-        .map-placeholder .map-text {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 14px;
-            z-index: 1;
-            text-align: center;
-            max-width: 300px;
-        }
-
-        .map-placeholder .map-text strong {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .map-placeholder .observation-point {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00d4ff, #0066ff);
-            box-shadow: 0 0 20px rgba(0, 100, 255, 0.3);
-            cursor: pointer;
-            transition: all 0.3s;
-            z-index: 2;
-        }
-
-        .map-placeholder .observation-point:hover {
-            transform: scale(1.5);
-            box-shadow: 0 0 30px rgba(0, 100, 255, 0.5);
-        }
-
-        .map-placeholder .observation-point.water {
-            background: linear-gradient(135deg, #67e8f9, #0284c7);
-        }
-        .map-placeholder .observation-point.vegetation {
-            background: linear-gradient(135deg, #4ade80, #16a34a);
-        }
-        .map-placeholder .observation-point.species {
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-        }
-        .map-placeholder .observation-point.soil {
-            background: linear-gradient(135deg, #fb923c, #ea580c);
-        }
-        .map-placeholder .observation-point.general {
-            background: linear-gradient(135deg, #a78bfa, #7c3aed);
+            background: #0a0e17;
         }
 
         .map-controls {
@@ -479,7 +427,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 28px;
+            object-fit: cover;
+        }
+
+        .obs-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .obs-details {
@@ -540,7 +495,6 @@
             color: #fff;
         }
 
-        /* Quick Add Button */
         .quick-add-btn {
             position: fixed;
             bottom: 80px;
@@ -703,6 +657,40 @@
             box-shadow: 0 8px 30px rgba(0, 100, 255, 0.3);
         }
 
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .file-upload-area:hover {
+            border-color: rgba(0, 180, 255, 0.3);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .file-upload-area.has-file {
+            border-color: rgba(74, 222, 128, 0.3);
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        .file-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -745,6 +733,101 @@
             animation: fadeIn 0.3s ease;
         }
 
+        /* Report Preview */
+        .report-preview {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .report-preview h3 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .report-preview .report-meta {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 16px;
+        }
+
+        .report-preview .report-section {
+            margin-bottom: 16px;
+        }
+
+        .report-preview .report-section h4 {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .report-preview .report-item {
+            display: flex;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .report-preview .report-item .icon {
+            font-size: 20px;
+        }
+
+        .report-preview .report-item .details {
+            flex: 1;
+        }
+
+        .report-preview .report-item .details .title {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .report-preview .report-item .details .sub {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-actions .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            color: #fff;
+        }
+
+        .modal-actions .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 100, 255, 0.3);
+        }
+
+        .modal-actions .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #e8edf5;
+        }
+
+        .modal-actions .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .left-panel { width: 280px; min-width: 280px; }
@@ -765,22 +848,57 @@
             }
             .left-panel.open { transform: translateX(0); }
             .top-bar { padding: 8px 16px; }
-            .search-box { min-width: 120px; }
+            .search-box { min-width: 100px; }
             .search-box input { font-size: 13px; }
             .top-bar-btn span:not(.emoji) { display: none; }
             .bottom-panel { padding: 12px 16px; }
             .modal { padding: 24px; margin: 12px; }
             .form-row { grid-template-columns: 1fr; }
             .quick-add-btn { bottom: 70px; right: 16px; width: 48px; height: 48px; font-size: 24px; }
+            .top-bar-actions .top-bar-btn.success span { display: inline; }
         }
 
         @media (max-width: 480px) {
             .logo-text { font-size: 16px; }
-            .top-bar-actions { gap: 8px; }
-            .search-box { min-width: 80px; padding: 6px 12px; }
+            .top-bar-actions { gap: 6px; }
+            .search-box { min-width: 60px; padding: 6px 10px; }
             .observation-item { flex-direction: column; }
             .obs-thumb { width: 100%; height: 120px; }
+            .modal-actions { flex-direction: column; }
         }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: rgba(255, 255, 255, 0.2);
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.05);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Print styles for report */
+        @media print {
+            body { background: #fff; color: #000; }
+            .top-bar, .left-panel, .map-controls, .quick-add-btn, .bottom-panel { display: none !important; }
+            .main-content { display: block !important; }
+            .map-container { height: 400px !important; }
+            .report-print-only { display: block !important; }
+        }
+        .report-print-only { display: none; }
     </style>
 </head>
 <body>
@@ -791,12 +909,15 @@
             <div class="logo-section">
                 <div class="logo-icon">A</div>
                 <span class="logo-text">AETHER</span>
+                <span class="badge">v2.0</span>
             </div>
             <div class="top-bar-actions">
                 <div class="search-box">
                     <span class="search-icon">⌕</span>
                     <input type="text" placeholder="Search projects..." id="searchInput">
                 </div>
+                <button class="top-bar-btn success" id="reportBtn">📄 Report</button>
+                <button class="top-bar-btn" id="exportBtn">⬇ Export</button>
                 <button class="top-bar-btn" id="menuToggle">☰ <span>Menu</span></button>
                 <button class="top-bar-btn primary" id="newProjectBtn">+ <span>New Project</span></button>
                 <div class="avatar">JD</div>
@@ -820,15 +941,11 @@
 
             <!-- Map Container -->
             <div class="map-container">
-                <div class="map-placeholder" id="mapPlaceholder">
-                    <div class="grid-overlay"></div>
-                    <div class="map-icon">🗺️</div>
-                    <div class="map-text">
-                        <strong>AETHER Map View</strong><br>
-                        Click the + button to add observations<br>
-                        <span style="font-size:12px; opacity:0.6;">Observations appear as colored dots</span>
+                <div id="map">
+                    <div class="loading" id="mapLoading">
+                        <div class="spinner"></div>
+                        <div>Loading map...</div>
                     </div>
-                    <div id="mapPoints"></div>
                 </div>
 
                 <div class="map-controls">
@@ -890,19 +1007,46 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Latitude</label>
-                        <input class="form-input" type="text" id="formLat" placeholder="-37.8136">
+                        <input class="form-input" type="number" step="0.000001" id="formLat" placeholder="-37.8136" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Longitude</label>
-                        <input class="form-input" type="text" id="formLng" placeholder="144.9631">
+                        <input class="form-input" type="number" step="0.000001" id="formLng" placeholder="144.9631" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Emoji (optional)</label>
-                    <input class="form-input" type="text" id="formPhoto" placeholder="🌿, 💧, 🦋, etc." maxlength="2">
+                    <label class="form-label">Photo</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <div id="fileUploadText">📷 Click or drag to upload a photo</div>
+                        <input type="file" id="fileInput" accept="image/*" style="display:none;">
+                        <div class="file-preview" id="filePreview" style="display:none;">
+                            <img id="previewImage" alt="Preview">
+                            <span id="fileName" style="font-size:13px; color:rgba(255,255,255,0.4);"></span>
+                            <button type="button" id="removeFile" style="background:none; border:none; color:#ef4444; cursor:pointer;">✕</button>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="form-submit">Save Observation</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="reportModalOverlay">
+        <div class="modal fade-in" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📄 Project Report</h2>
+                <button class="modal-close" id="reportModalClose">✕</button>
+            </div>
+            <div id="reportContent">
+                <div class="report-preview" id="reportPreview">
+                    <!-- Rendered by JavaScript -->
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" id="printReport">🖨️ Print / PDF</button>
+                    <button class="btn-secondary" id="closeReport">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -912,71 +1056,148 @@
         <div class="toast-message" id="toastMessage">Observation saved</div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script>
         // ============================================================
-        // AETHER - Complete Application (No External Dependencies)
-        // Version 1.0 - GDB Online Compatible
+        // AETHER Field Notes v2.0
+        // With: Persistence, Reports, Photos, Map
         // ============================================================
 
-        // --- Data Store ---
+        // --- Data Store with LocalStorage ---
         const Store = {
-            projects: [{
-                id: 'proj-1',
-                name: 'Riverine Ecosystem Assessment',
-                client: 'Melbourne Water',
-                status: 'active',
-                progress: 65,
-                observations: [],
-                location: { lat: -37.8136, lng: 144.9631 }
-            }, {
-                id: 'proj-2',
-                name: 'Coastal Dune Restoration',
-                client: 'Parks Victoria',
-                status: 'active',
-                progress: 32,
-                observations: [],
-                location: { lat: -38.3901, lng: 142.4823 }
-            }, {
-                id: 'proj-3',
-                name: 'Biodiversity Monitoring Program',
-                client: 'Department of Environment',
-                status: 'active',
-                progress: 78,
-                observations: [],
-                location: { lat: -37.9564, lng: 145.1786 }
-            }, {
-                id: 'proj-4',
-                name: 'Mining Rehabilitation - Site 7B',
-                client: 'Rio Tinto',
-                status: 'warning',
-                progress: 45,
-                observations: [],
-                location: { lat: -27.4680, lng: 153.0234 }
-            }],
+            projects: [],
             observations: [],
-            activeProjectId: 'proj-1'
+            activeProjectId: null,
+            _loaded: false,
+
+            load() {
+                try {
+                    const data = localStorage.getItem('aether_data');
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        this.projects = parsed.projects || [];
+                        this.observations = parsed.observations || [];
+                        this.activeProjectId = parsed.activeProjectId || (this.projects[0]?.id || null);
+                        this._loaded = true;
+                        return true;
+                    }
+                } catch (e) {
+                    console.warn('Failed to load data:', e);
+                }
+                // Default data
+                this.projects = [{
+                    id: 'proj-1',
+                    name: 'Riverine Ecosystem Assessment',
+                    client: 'Melbourne Water',
+                    status: 'active',
+                    progress: 65,
+                    observations: [],
+                    location: { lat: -37.8136, lng: 144.9631 },
+                    created: new Date().toISOString()
+                }, {
+                    id: 'proj-2',
+                    name: 'Coastal Dune Restoration',
+                    client: 'Parks Victoria',
+                    status: 'active',
+                    progress: 32,
+                    observations: [],
+                    location: { lat: -38.3901, lng: 142.4823 },
+                    created: new Date().toISOString()
+                }, {
+                    id: 'proj-3',
+                    name: 'Biodiversity Monitoring Program',
+                    client: 'Department of Environment',
+                    status: 'active',
+                    progress: 78,
+                    observations: [],
+                    location: { lat: -37.9564, lng: 145.1786 },
+                    created: new Date().toISOString()
+                }];
+                this.activeProjectId = this.projects[0].id;
+                this.save();
+                return true;
+            },
+
+            save() {
+                try {
+                    localStorage.setItem('aether_data', JSON.stringify({
+                        projects: this.projects,
+                        observations: this.observations,
+                        activeProjectId: this.activeProjectId
+                    }));
+                } catch (e) {
+                    console.warn('Failed to save data:', e);
+                }
+            },
+
+            getProject(id) {
+                return this.projects.find(p => p.id === id);
+            },
+
+            getObservations(projectId) {
+                return this.observations.filter(o => o.projectId === projectId);
+            },
+
+            addObservation(obs) {
+                this.observations.push(obs);
+                const project = this.getProject(obs.projectId);
+                if (project) {
+                    project.observations.push(obs.id);
+                    // Update progress
+                    const obsCount = project.observations.length;
+                    project.progress = Math.min(100, Math.round((obsCount / 10) * 100));
+                }
+                this.save();
+                return obs;
+            },
+
+            deleteObservation(id) {
+                const obs = this.observations.find(o => o.id === id);
+                if (obs) {
+                    this.observations = this.observations.filter(o => o.id !== id);
+                    const project = this.getProject(obs.projectId);
+                    if (project) {
+                        project.observations = project.observations.filter(oid => oid !== id);
+                        const obsCount = project.observations.length;
+                        project.progress = Math.min(100, Math.round((obsCount / 10) * 100));
+                    }
+                    this.save();
+                    return true;
+                }
+                return false;
+            },
+
+            addProject(project) {
+                this.projects.push(project);
+                this.save();
+                return project;
+            }
         };
 
-        // --- Sample Observations ---
-        function generateSampleObservations() {
+        // Load data
+        Store.load();
+
+        // Generate sample observations if none exist
+        if (Store.observations.length === 0) {
             const samples = [
-                { title: 'Water Sample - Site A', type: 'water', notes: 'pH 7.2, turbidity moderate, DO 7.8 mg/L', 
-                  lat: -37.8136, lng: 144.9631, photo: '🌊' },
+                { title: 'Water Sample - Site A', type: 'water', notes: 'pH 7.2, turbidity moderate, DO 7.8 mg/L',
+                    lat: -37.8136, lng: 144.9631, photo: null },
                 { title: 'Vegetation Transect #3', type: 'vegetation', notes: 'Dense canopy cover, understory dominated by Acacia',
-                  lat: -37.8136, lng: 144.9631, photo: '🌿' },
+                    lat: -37.8136, lng: 144.9631, photo: null },
                 { title: 'Platypus Sighting', type: 'species', notes: 'Observed at 8:15 AM near the log jam',
-                  lat: -37.8136, lng: 144.9631, photo: '🦆' },
+                    lat: -37.8136, lng: 144.9631, photo: null },
                 { title: 'Soil Sample - Zone 2', type: 'soil', notes: 'Clay loam, high organic matter, pH 6.5',
-                  lat: -37.8136, lng: 144.9631, photo: '🧪' },
+                    lat: -37.8136, lng: 144.9631, photo: null },
                 { title: 'Water Quality - Downstream', type: 'water', notes: 'pH 6.9, turbidity low, excellent clarity',
-                  lat: -37.8136, lng: 144.9631, photo: '💧' },
+                    lat: -37.8136, lng: 144.9631, photo: null },
                 { title: 'Koala Sighting', type: 'species', notes: 'Adult male in Eucalyptus tree, approximately 4 years old',
-                  lat: -37.8136, lng: 144.9631, photo: '🐨' }
+                    lat: -37.8136, lng: 144.9631, photo: null }
             ];
 
             samples.forEach((s, i) => {
                 const obs = {
-                    id: `obs-${i + 1}`,
+                    id: `obs-${Date.now()}-${i}`,
                     projectId: 'proj-1',
                     title: s.title,
                     type: s.type,
@@ -989,40 +1210,17 @@
                 Store.observations.push(obs);
                 Store.projects[0].observations.push(obs.id);
             });
-
-            const extraObs = [
-                { title: 'Dune Profile #2', type: 'general', notes: 'Erosion visible on foredune, 2m retreat', 
-                  lat: -38.3901, lng: 142.4823, projectId: 'proj-2', photo: '🏖️' },
-                { title: 'Native Grass Survey', type: 'vegetation', notes: 'Good regeneration after planting, 80% coverage',
-                  lat: -37.9564, lng: 145.1786, projectId: 'proj-3', photo: '🌾' },
-                { title: 'Water Sample - Dam', type: 'water', notes: 'pH 7.5, algae present, turbidity high',
-                  lat: -27.4680, lng: 153.0234, projectId: 'proj-4', photo: '🟢' }
-            ];
-
-            extraObs.forEach((s) => {
-                const obs = {
-                    id: `obs-${Store.observations.length + 1}`,
-                    projectId: s.projectId,
-                    title: s.title,
-                    type: s.type || 'general',
-                    notes: s.notes || '',
-                    lat: s.lat + (Math.random() - 0.5) * 0.005,
-                    lng: s.lng + (Math.random() - 0.5) * 0.005,
-                    photo: s.photo || '📝',
-                    timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString()
-                };
-                Store.observations.push(obs);
-                const project = Store.projects.find(p => p.id === s.projectId);
-                if (project) project.observations.push(obs.id);
-            });
+            Store.projects[0].progress = 60;
+            Store.save();
         }
-        generateSampleObservations();
 
         // --- State ---
+        let map = null;
+        let markers = [];
         let isPanelExpanded = false;
         let selectedObservationId = null;
-        let zoomLevel = 12;
-        let mapCenter = { lat: -37.8136, lng: 144.9631 };
+        let mapInitialized = false;
+        let currentPhotoData = null;
 
         // --- DOM References ---
         const $ = id => document.getElementById(id);
@@ -1041,7 +1239,13 @@
         const formNotes = $('formNotes');
         const formLat = $('formLat');
         const formLng = $('formLng');
-        const formPhoto = $('formPhoto');
+        const fileInput = $('fileInput');
+        const fileUploadArea = $('fileUploadArea');
+        const fileUploadText = $('fileUploadText');
+        const filePreview = $('filePreview');
+        const previewImage = $('previewImage');
+        const fileName = $('fileName');
+        const removeFile = $('removeFile');
         const bottomPanel = $('bottomPanel');
         const panelHandle = $('panelHandle');
         const quickAddBtn = $('quickAddBtn');
@@ -1049,11 +1253,16 @@
         const menuToggle = $('menuToggle');
         const leftPanel = $('leftPanel');
         const searchInput = $('searchInput');
-        const mapPoints = $('mapPoints');
-        const mapPlaceholder = $('mapPlaceholder');
         const toast = $('toast');
         const toastTitle = $('toastTitle');
         const toastMessage = $('toastMessage');
+        const reportBtn = $('reportBtn');
+        const exportBtn = $('exportBtn');
+        const reportModalOverlay = $('reportModalOverlay');
+        const reportModalClose = $('reportModalClose');
+        const reportPreview = $('reportPreview');
+        const printReport = $('printReport');
+        const closeReport = $('closeReport');
 
         // --- Toast System ---
         let toastTimeout = null;
@@ -1068,80 +1277,158 @@
             }, duration);
         }
 
-        // --- Map Rendering (Simple DOM-based) ---
-        function renderMapPoints() {
-            if (!mapPoints) return;
-            
-            const project = Store.projects.find(p => p.id === Store.activeProjectId);
+        // --- Map Initialization ---
+        function initMap() {
+            try {
+                if (typeof L === 'undefined') {
+                    setTimeout(initMap, 500);
+                    return;
+                }
+
+                const mapEl = $('map');
+                const loading = $('mapLoading');
+                if (loading) loading.style.display = 'none';
+
+                map = L.map('map', {
+                    center: [-37.8136, 144.9631],
+                    zoom: 12,
+                    zoomControl: false,
+                    attributionControl: false
+                });
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(map);
+
+                const attribution = L.control.attribution({ position: 'bottomright' });
+                attribution.addAttribution('&copy; OpenStreetMap contributors &copy; CartoDB');
+                attribution.addTo(map);
+
+                $('zoomIn').addEventListener('click', () => map.zoomIn());
+                $('zoomOut').addEventListener('click', () => map.zoomOut());
+
+                $('locateMe').addEventListener('click', () => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+                                showToast('Location Found', 'Map centered on your location');
+                            },
+                            () => {
+                                showToast('Location Error', 'Unable to get your location');
+                            }
+                        );
+                    } else {
+                        showToast('Not Supported', 'Geolocation is not supported');
+                    }
+                });
+
+                map.on('click', (e) => {
+                    formLat.value = e.latlng.lat.toFixed(6);
+                    formLng.value = e.latlng.lng.toFixed(6);
+                    openModal('New Observation');
+                    showToast('Location Set', `Coordinates set from map click`);
+                });
+
+                mapInitialized = true;
+                updateMapMarkers();
+
+                window.addEventListener('resize', () => {
+                    if (map) setTimeout(() => map.invalidateSize(), 100);
+                });
+
+                setTimeout(() => {
+                    if (map) map.invalidateSize();
+                }, 500);
+
+                console.log('✅ Map initialized');
+            } catch (error) {
+                console.error('Map error:', error);
+                const loading = $('mapLoading');
+                if (loading) {
+                    loading.innerHTML = `
+                        <div style="font-size:48px;">🗺️</div>
+                        <div style="color:rgba(255,255,255,0.3);">Map loading error</div>
+                        <div style="font-size:12px; max-width:300px; text-align:center;">Please refresh the page or check your internet connection</div>
+                    `;
+                    loading.style.display = 'flex';
+                }
+            }
+        }
+
+        // --- Map Markers ---
+        function updateMapMarkers() {
+            if (!map || !mapInitialized) return;
+
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            const project = Store.getProject(Store.activeProjectId);
             if (!project) return;
 
-            const projectObs = Store.observations.filter(o => o.projectId === Store.activeProjectId);
-            
-            // Clear existing points
-            mapPoints.innerHTML = '';
+            const projectObs = Store.getObservations(Store.activeProjectId);
 
-            // Calculate positions relative to the map container
-            const container = mapPlaceholder;
-            const rect = container.getBoundingClientRect();
-            const containerWidth = container.clientWidth || 800;
-            const containerHeight = container.clientHeight || 500;
+            try {
+                const projectMarker = L.circleMarker([project.location.lat, project.location.lng], {
+                    radius: 8,
+                    fillColor: '#00d4ff',
+                    color: '#0066ff',
+                    weight: 2,
+                    opacity: 0.6,
+                    fillOpacity: 0.3
+                }).addTo(map);
+                projectMarker.bindPopup(`<strong>${project.name}</strong><br>${project.client}`);
+                markers.push(projectMarker);
+            } catch (e) {}
 
-            // Define bounds (roughly Melbourne area)
-            const bounds = {
-                minLat: -38.5,
-                maxLat: -37.5,
-                minLng: 143.5,
-                maxLng: 145.5
-            };
-
-            // Add project marker
-            const projX = ((project.location.lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * containerWidth;
-            const projY = ((project.location.lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * containerHeight;
-            
-            const projDot = document.createElement('div');
-            projDot.className = 'observation-point';
-            projDot.style.left = Math.max(10, Math.min(containerWidth - 10, projX)) + 'px';
-            projDot.style.top = Math.max(10, Math.min(containerHeight - 10, projY)) + 'px';
-            projDot.style.width = '16px';
-            projDot.style.height = '16px';
-            projDot.style.background = 'linear-gradient(135deg, #00d4ff, #0066ff)';
-            projDot.style.boxShadow = '0 0 30px rgba(0,100,255,0.3)';
-            projDot.title = project.name;
-            mapPoints.appendChild(projDot);
-
-            // Add observation markers
             projectObs.forEach(obs => {
-                const x = ((obs.lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * containerWidth;
-                const y = ((obs.lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * containerHeight;
-                
-                // Only show if within bounds
-                if (x < 0 || x > containerWidth || y < 0 || y > containerHeight) return;
+                try {
+                    const colorMap = {
+                        water: '#67e8f9',
+                        vegetation: '#4ade80',
+                        species: '#fbbf24',
+                        soil: '#fb923c',
+                        general: '#a78bfa'
+                    };
+                    const color = colorMap[obs.type] || '#a78bfa';
 
-                const dot = document.createElement('div');
-                dot.className = `observation-point ${obs.type}`;
-                dot.style.left = Math.max(5, Math.min(containerWidth - 5, x)) + 'px';
-                dot.style.top = Math.max(5, Math.min(containerHeight - 5, y)) + 'px';
-                dot.style.width = '12px';
-                dot.style.height = '12px';
-                dot.title = `${obs.title} (${obs.type})`;
-                
-                dot.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    selectObservation(obs.id);
-                });
-                
-                // Show emoji on hover
-                dot.addEventListener('mouseenter', () => {
-                    dot.style.transform = 'scale(1.5)';
-                    dot.style.zIndex = '10';
-                });
-                dot.addEventListener('mouseleave', () => {
-                    dot.style.transform = 'scale(1)';
-                    dot.style.zIndex = '2';
-                });
-                
-                mapPoints.appendChild(dot);
+                    const marker = L.circleMarker([obs.lat, obs.lng], {
+                        radius: 6,
+                        fillColor: color,
+                        color: 'rgba(255,255,255,0.2)',
+                        weight: 1.5,
+                        opacity: 0.8,
+                        fillOpacity: 0.9
+                    }).addTo(map);
+
+                    const typeLabel = obs.type.charAt(0).toUpperCase() + obs.type.slice(1);
+                    const photoHtml = obs.photo ? `<br><img src="${obs.photo}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;margin-top:4px;">` : '';
+                    marker.bindPopup(`
+                        <div style="color:#0a0e17; font-family: 'Inter', sans-serif; max-width:200px;">
+                            <strong>${obs.title}</strong><br>
+                            <span style="font-size:12px; color:#666;">${typeLabel}</span><br>
+                            <span style="font-size:12px; color:#666;">${new Date(obs.timestamp).toLocaleDateString()}</span>
+                            ${photoHtml}
+                            <br><button onclick="selectObservation('${obs.id}')" 
+                                    style="margin-top:6px; background:#0066ff; color:#fff; border:none; 
+                                           padding:4px 12px; border-radius:6px; cursor:pointer; font-size:12px;">
+                                View Details
+                            </button>
+                        </div>
+                    `);
+
+                    markers.push(marker);
+                } catch (e) {}
             });
+
+            if (markers.length > 1) {
+                try {
+                    const group = L.featureGroup(markers);
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                } catch (e) {}
+            }
         }
 
         // --- Select Observation ---
@@ -1151,16 +1438,29 @@
             selectedObservationId = obsId;
             expandPanel();
             renderObservationFeed();
-            renderMapPoints();
             showToast('Observation Selected', obs.title);
+
+            if (map && mapInitialized) {
+                markers.forEach(marker => {
+                    try {
+                        const popup = marker.getPopup();
+                        if (popup && popup.getContent) {
+                            const content = popup.getContent();
+                            if (content && content.includes(obsId)) {
+                                map.setView(marker.getLatLng(), 16);
+                                marker.openPopup();
+                            }
+                        }
+                    } catch (e) {}
+                });
+            }
         }
 
         // --- Render Projects ---
         function renderProjects() {
-            if (!projectList) return;
             projectList.innerHTML = Store.projects.map(p => `
                 <div class="project-card ${p.id === Store.activeProjectId ? 'active' : ''}" 
-                     data-project-id="${p.id}" onclick="switchProject('${p.id}')">
+                     onclick="switchProject('${p.id}')">
                     <div class="project-card-header">
                         <div class="project-name">${p.name}</div>
                         <div class="project-status ${p.status === 'warning' ? 'warning' : ''}">
@@ -1176,32 +1476,30 @@
                     </div>
                 </div>
             `).join('');
-            if (projectCount) projectCount.textContent = Store.projects.length;
+            projectCount.textContent = Store.projects.length;
         }
 
         // --- Switch Project ---
         function switchProject(projectId) {
             Store.activeProjectId = projectId;
+            Store.save();
             renderProjects();
             renderObservationFeed();
             renderRecentObservations();
-            renderMapPoints();
+            updateMapMarkers();
             updateObsCount();
 
             if (window.innerWidth <= 768) {
                 leftPanel.classList.remove('open');
             }
 
-            const project = Store.projects.find(p => p.id === projectId);
+            const project = Store.getProject(projectId);
             if (project) showToast('Project Switched', project.name);
         }
 
         // --- Render Observation Feed ---
         function renderObservationFeed() {
-            if (!observationFeed) return;
-            
-            const projectObs = Store.observations
-                .filter(o => o.projectId === Store.activeProjectId)
+            const projectObs = Store.getObservations(Store.activeProjectId)
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             if (projectObs.length === 0) {
@@ -1218,7 +1516,9 @@
             observationFeed.innerHTML = projectObs.map(obs => `
                 <div class="observation-item ${obs.id === selectedObservationId ? 'active' : ''}" 
                      onclick="selectObservation('${obs.id}')">
-                    <div class="obs-thumb">${obs.photo || '📷'}</div>
+                    <div class="obs-thumb">
+                        ${obs.photo ? `<img src="${obs.photo}" alt="${obs.title}">` : '📷'}
+                    </div>
                     <div class="obs-details">
                         <div class="obs-title">${obs.title}</div>
                         <div class="obs-meta">
@@ -1239,8 +1539,6 @@
 
         // --- Render Recent Observations ---
         function renderRecentObservations() {
-            if (!recentObservations) return;
-            
             const allObs = Store.observations
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                 .slice(0, 4);
@@ -1257,7 +1555,7 @@
             recentObservations.innerHTML = allObs.map(obs => `
                 <div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); cursor:pointer;"
                      onclick="switchProject('${obs.projectId}'); selectObservation('${obs.id}')">
-                    <span style="font-size:18px;">${obs.photo || '📝'}</span>
+                    <span style="font-size:18px;">${obs.photo ? '📷' : '📝'}</span>
                     <div style="flex:1; min-width:0;">
                         <div style="font-size:13px; color:#e8edf5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                             ${obs.title}
@@ -1272,8 +1570,7 @@
 
         // --- Update Observation Count ---
         function updateObsCount() {
-            if (!obsCount) return;
-            const count = Store.observations.filter(o => o.projectId === Store.activeProjectId).length;
+            const count = Store.getObservations(Store.activeProjectId).length;
             obsCount.textContent = count;
         }
 
@@ -1297,39 +1594,99 @@
         function openModal(title) {
             modalTitle.textContent = title || 'New Observation';
             modalOverlay.classList.add('active');
-            
+
             formProject.innerHTML = Store.projects.map(p =>
                 `<option value="${p.id}" ${p.id === Store.activeProjectId ? 'selected' : ''}>${p.name}</option>`
             ).join('');
-            
-            const project = Store.projects.find(p => p.id === Store.activeProjectId);
+
+            const project = Store.getProject(Store.activeProjectId);
             if (project) {
                 formLat.value = project.location.lat.toFixed(6);
                 formLng.value = project.location.lng.toFixed(6);
             }
+
+            // Reset file upload
+            currentPhotoData = null;
+            filePreview.style.display = 'none';
+            fileUploadText.style.display = 'block';
+            fileUploadArea.classList.remove('has-file');
+            fileInput.value = '';
         }
 
         function closeModal() {
             modalOverlay.classList.remove('active');
             observationForm.reset();
+            currentPhotoData = null;
+            filePreview.style.display = 'none';
+            fileUploadText.style.display = 'block';
+            fileUploadArea.classList.remove('has-file');
         }
+
+        // --- File Upload ---
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    currentPhotoData = event.target.result;
+                    previewImage.src = currentPhotoData;
+                    fileName.textContent = file.name;
+                    filePreview.style.display = 'flex';
+                    fileUploadText.style.display = 'none';
+                    fileUploadArea.classList.add('has-file');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeFile.addEventListener('click', () => {
+            currentPhotoData = null;
+            filePreview.style.display = 'none';
+            fileUploadText.style.display = 'block';
+            fileUploadArea.classList.remove('has-file');
+            fileInput.value = '';
+        });
+
+        // Drag and drop
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.style.borderColor = 'rgba(0, 180, 255, 0.5)';
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    currentPhotoData = event.target.result;
+                    previewImage.src = currentPhotoData;
+                    fileName.textContent = file.name;
+                    filePreview.style.display = 'flex';
+                    fileUploadText.style.display = 'none';
+                    fileUploadArea.classList.add('has-file');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         // --- Delete Observation ---
         function deleteObservation(obsId) {
             if (!confirm('Delete this observation?')) return;
-            const obs = Store.observations.find(o => o.id === obsId);
-            if (obs) {
-                Store.observations = Store.observations.filter(o => o.id !== obsId);
-                const project = Store.projects.find(p => p.id === obs.projectId);
-                if (project) {
-                    project.observations = project.observations.filter(id => id !== obsId);
-                }
+            if (Store.deleteObservation(obsId)) {
                 if (selectedObservationId === obsId) selectedObservationId = null;
                 renderObservationFeed();
                 renderRecentObservations();
-                renderMapPoints();
+                updateMapMarkers();
                 updateObsCount();
-                showToast('Deleted', `"${obs.title}" removed`);
+                showToast('Deleted', 'Observation removed');
             }
         }
 
@@ -1343,7 +1700,6 @@
             const notes = formNotes.value.trim();
             const lat = parseFloat(formLat.value);
             const lng = parseFloat(formLng.value);
-            const photo = formPhoto.value.trim() || '📝';
 
             if (!projectId || !title || isNaN(lat) || isNaN(lng)) {
                 showToast('Error', 'Please fill in all required fields');
@@ -1358,26 +1714,24 @@
                 notes: notes || '',
                 lat: lat,
                 lng: lng,
-                photo: photo,
+                photo: currentPhotoData || null,
                 timestamp: new Date().toISOString()
             };
 
-            Store.observations.push(newObs);
-            const project = Store.projects.find(p => p.id === projectId);
-            if (project) project.observations.push(newObs.id);
+            Store.addObservation(newObs);
 
             if (projectId !== Store.activeProjectId) {
                 switchProject(projectId);
             } else {
                 renderObservationFeed();
                 renderRecentObservations();
-                renderMapPoints();
+                updateMapMarkers();
                 updateObsCount();
             }
 
             closeModal();
             expandPanel();
-            showToast('Observation Saved', `"${title}" added to ${project ? project.name : 'project'}`);
+            showToast('Observation Saved', `"${title}" added successfully`);
 
             setTimeout(() => selectObservation(newObs.id), 300);
         }
@@ -1398,10 +1752,11 @@
                 location: {
                     lat: -37.8136 + (Math.random() - 0.5) * 0.5,
                     lng: 144.9631 + (Math.random() - 0.5) * 0.5
-                }
+                },
+                created: new Date().toISOString()
             };
 
-            Store.projects.push(newProject);
+            Store.addProject(newProject);
             renderProjects();
             switchProject(newProject.id);
             showToast('Project Created', `${name} created successfully`);
@@ -1451,8 +1806,8 @@
 
             if (filteredObs.length > 0) {
                 observationFeed.innerHTML = filteredObs.map(obs => `
-                    <div class="observation-item">
-                        <div class="obs-thumb">${obs.photo || '📷'}</div>
+                    <div class="observation-item" onclick="selectObservation('${obs.id}')">
+                        <div class="obs-thumb">${obs.photo ? `<img src="${obs.photo}" alt="${obs.title}">` : '📷'}</div>
                         <div class="obs-details">
                             <div class="obs-title">${obs.title}</div>
                             <div class="obs-meta">
@@ -1467,52 +1822,161 @@
             }
         }
 
-        // --- Map Controls ---
-        function handleZoomIn() {
-            zoomLevel = Math.min(zoomLevel + 1, 18);
-            renderMapPoints();
-            showToast('Zoom', `Level ${zoomLevel}`);
-        }
-
-        function handleZoomOut() {
-            zoomLevel = Math.max(zoomLevel - 1, 1);
-            renderMapPoints();
-            showToast('Zoom', `Level ${zoomLevel}`);
-        }
-
-        function handleLocate() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        mapCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        renderMapPoints();
-                        showToast('Location Found', 'Map centered on your location');
-                    },
-                    () => {
-                        showToast('Location Error', 'Unable to get your location');
-                    }
-                );
-            } else {
-                showToast('Not Supported', 'Geolocation is not supported');
+        // --- Report Generation ---
+        function generateReport() {
+            const project = Store.getProject(Store.activeProjectId);
+            if (!project) {
+                showToast('Error', 'No project selected');
+                return;
             }
+
+            const obs = Store.getObservations(Store.activeProjectId)
+                .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            if (obs.length === 0) {
+                showToast('Error', 'No observations to report');
+                return;
+            }
+
+            const typeCounts = {};
+            obs.forEach(o => {
+                typeCounts[o.type] = (typeCounts[o.type] || 0) + 1;
+            });
+
+            const now = new Date().toLocaleDateString('en-AU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            let html = `
+                <div style="background: #fff; color: #1a1a2e; padding: 40px; border-radius: 12px;">
+                    <div style="border-bottom: 3px solid #0066ff; padding-bottom: 20px; margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 24px; font-weight: 700; color: #0a0e17;">${project.name}</div>
+                                <div style="color: #666; font-size: 14px; margin-top: 4px;">${project.client}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 12px; color: #666;">Report Generated</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #0a0e17;">${now}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 700; color: #0066ff;">${obs.length}</div>
+                            <div style="font-size: 12px; color: #666;">Total Observations</div>
+                        </div>
+                        <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 700; color: #0066ff;">${project.progress}%</div>
+                            <div style="font-size: 12px; color: #666;">Project Progress</div>
+                        </div>
+                        <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 700; color: #0066ff;">${Object.keys(typeCounts).length}</div>
+                            <div style="font-size: 12px; color: #666;">Observation Types</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-size: 16px; font-weight: 600; color: #0a0e17; margin-bottom: 12px;">Observations by Type</div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            ${Object.entries(typeCounts).map(([type, count]) => `
+                                <span style="background: #eef2ff; padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #0a0e17;">
+                                    ${type}: ${count}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-size: 16px; font-weight: 600; color: #0a0e17; margin-bottom: 12px;">Location Map</div>
+                        <div style="background: #f5f7fa; border-radius: 8px; padding: 20px; text-align: center; min-height: 200px;">
+                            <div style="font-size: 48px; margin-bottom: 8px;">🗺️</div>
+                            <div style="font-size: 13px; color: #666;">
+                                ${obs.length} observations across ${project.name}
+                            </div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">
+                                Center: ${project.location.lat.toFixed(4)}, ${project.location.lng.toFixed(4)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="font-size: 16px; font-weight: 600; color: #0a0e17; margin-bottom: 12px;">Observation Details</div>
+                        ${obs.slice(0, 20).map(o => `
+                            <div style="display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eef2f6;">
+                                <div style="font-size: 24px;">${o.photo ? '📷' : '📝'}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 500; color: #0a0e17;">${o.title}</div>
+                                    <div style="font-size: 12px; color: #666;">
+                                        <span style="background: #eef2ff; padding: 2px 10px; border-radius: 12px;">${o.type}</span>
+                                        <span style="margin-left: 8px;">${new Date(o.timestamp).toLocaleDateString()}</span>
+                                        ${o.notes ? `<span style="margin-left: 8px;">${o.notes.substring(0, 60)}${o.notes.length > 60 ? '...' : ''}</span>` : ''}
+                                    </div>
+                                    <div style="font-size: 11px; color: #999; margin-top: 2px;">
+                                        ${o.lat.toFixed(5)}, ${o.lng.toFixed(5)}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${obs.length > 20 ? `<div style="text-align: center; padding: 12px; color: #666; font-size: 13px;">... and ${obs.length - 20} more observations</div>` : ''}
+                    </div>
+
+                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #eef2f6; text-align: center; font-size: 12px; color: #999;">
+                        Generated by AETHER Field Notes v2.0
+                    </div>
+                </div>
+            `;
+
+            reportPreview.innerHTML = html;
+            reportModalOverlay.classList.add('active');
         }
 
-        // --- Resize Handler ---
-        function handleResize() {
-            renderMapPoints();
+        // --- Export CSV ---
+        function exportCSV() {
+            const project = Store.getProject(Store.activeProjectId);
+            if (!project) {
+                showToast('Error', 'No project selected');
+                return;
+            }
+
+            const obs = Store.getObservations(Store.activeProjectId);
+            if (obs.length === 0) {
+                showToast('Error', 'No observations to export');
+                return;
+            }
+
+            let csv = 'Title,Type,Notes,Date,Latitude,Longitude\n';
+            obs.forEach(o => {
+                const date = new Date(o.timestamp).toLocaleDateString();
+                csv += `"${o.title}","${o.type}","${(o.notes || '').replace(/"/g, '""')}","${date}",${o.lat},${o.lng}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${project.name.replace(/\s+/g, '_')}_observations.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showToast('Exported', `CSV exported for ${project.name}`);
         }
 
         // --- Initialize ---
         function init() {
-            console.log('🌿 AETHER v1.0 initializing...');
+            console.log('🌿 AETHER v2.0 initializing...');
 
             try {
-                // Render initial data
                 renderProjects();
                 renderObservationFeed();
                 renderRecentObservations();
-                renderMapPoints();
                 updateObsCount();
+
+                // Initialize map after a moment
+                setTimeout(initMap, 300);
 
                 // Event Listeners
                 panelHandle.addEventListener('click', togglePanel);
@@ -1531,15 +1995,33 @@
                 observationForm.addEventListener('submit', saveObservation);
                 searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
 
-                document.getElementById('zoomIn').addEventListener('click', handleZoomIn);
-                document.getElementById('zoomOut').addEventListener('click', handleZoomOut);
-                document.getElementById('locateMe').addEventListener('click', handleLocate);
-
-                window.addEventListener('resize', handleResize);
+                // Report and Export
+                reportBtn.addEventListener('click', generateReport);
+                exportBtn.addEventListener('click', exportCSV);
+                reportModalClose.addEventListener('click', () => reportModalOverlay.classList.remove('active'));
+                closeReport.addEventListener('click', () => reportModalOverlay.classList.remove('active'));
+                reportModalOverlay.addEventListener('click', (e) => {
+                    if (e.target === reportModalOverlay) reportModalOverlay.classList.remove('active');
+                });
+                printReport.addEventListener('click', () => {
+                    const content = reportPreview.innerHTML;
+                    const win = window.open('', '_blank');
+                    if (win) {
+                        win.document.write(`
+                            <html><head><title>Report</title>
+                            <style>body { font-family: 'Inter', sans-serif; padding: 40px; max-width: 1000px; margin: 0 auto; }
+                            @media print { body { padding: 20px; } }</style>
+                            </head><body>${content}</body></html>
+                        `);
+                        win.document.close();
+                        setTimeout(() => win.print(), 500);
+                    }
+                });
 
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
                         if (modalOverlay.classList.contains('active')) closeModal();
+                        if (reportModalOverlay.classList.contains('active')) reportModalOverlay.classList.remove('active');
                         if (isPanelExpanded) collapsePanel();
                     }
                     if (e.ctrlKey && e.key === 'n') {
@@ -1551,9 +2033,9 @@
                 // Auto-expand panel
                 setTimeout(expandPanel, 600);
 
-                console.log(`✅ AETHER v1.0 loaded successfully`);
+                console.log(`✅ AETHER v2.0 loaded successfully`);
                 console.log(`📊 ${Store.projects.length} projects, ${Store.observations.length} observations`);
-                console.log(`📍 Active project: ${Store.projects.find(p => p.id === Store.activeProjectId)?.name}`);
+                console.log(`💾 Data saved to localStorage`);
             } catch (error) {
                 console.error('❌ Initialization error:', error);
                 showToast('Error', 'Failed to initialize application');
