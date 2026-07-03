@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AETHER - Environmental Field Management</title>
+    
+    <!-- Load Leaflet CSS first -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0e17;
+            color: #e8edf5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        /* App Container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #0f1622;
+            position: relative;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: rgba(15, 22, 34, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            z-index: 100;
+            flex-shrink: 0;
+            min-height: 60px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            color: #fff;
+            box-shadow: 0 0 30px rgba(0, 180, 255, 0.2);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, #80d0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: #e8edf5;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-icon {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+        }
+
+        .top-bar-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #e8edf5;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-bar-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .top-bar-btn.primary {
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+        }
+
+        .top-bar-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(0, 100, 255, 0.3);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #fff;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Left Panel - Project Sidebar */
+        .left-panel {
+            width: 320px;
+            min-width: 320px;
+            background: rgba(15, 22, 34, 0.6);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px 16px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-title span {
+            color: #00d4ff;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .project-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.06);
+            transform: translateX(2px);
+        }
+
+        .project-card.active {
+            background: rgba(0, 180, 255, 0.08);
+            border-color: rgba(0, 180, 255, 0.2);
+        }
+
+        .project-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .project-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .project-status {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            background: rgba(0, 200, 100, 0.15);
+            color: #4ade80;
+        }
+
+        .project-status.warning {
+            background: rgba(255, 200, 0, 0.15);
+            color: #facc15;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .project-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .project-progress {
+            margin-top: 10px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .project-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #0066ff);
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+
+        /* Map Area */
+        .map-container {
+            flex: 1;
+            position: relative;
+            background: #0a0e17;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            background: #0a0e17;
+        }
+
+        .map-controls {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .map-control-btn {
+            background: rgba(15, 22, 34, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #e8edf5;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        /* Bottom Panel - Observation Panel */
+        .bottom-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 22, 34, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 16px 24px;
+            transform: translateY(calc(100% - 60px));
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            z-index: 999;
+            max-height: 70vh;
+            overflow: hidden;
+        }
+
+        .bottom-panel.expanded {
+            transform: translateY(0);
+            cursor: default;
+        }
+
+        .bottom-panel-handle {
+            width: 40px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            margin: 0 auto 12px;
+            transition: background 0.2s;
+        }
+
+        .bottom-panel-handle:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .bottom-panel-content {
+            display: flex;
+            gap: 24px;
+            overflow-y: auto;
+            max-height: calc(70vh - 60px);
+            padding-right: 8px;
+        }
+
+        .observation-list {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .observation-item {
+            display: flex;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            align-items: flex-start;
+            cursor: pointer;
+            transition: background 0.2s;
+            padding: 12px 8px;
+            border-radius: 8px;
+            margin: 0 -8px;
+        }
+
+        .observation-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .observation-item.active {
+            background: rgba(0, 180, 255, 0.08);
+        }
+
+        .observation-item:last-child {
+            border-bottom: none;
+        }
+
+        .obs-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .obs-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .obs-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .obs-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .obs-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .obs-tag {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: rgba(0, 180, 255, 0.12);
+            color: #80d0ff;
+            display: inline-block;
+        }
+
+        .obs-tag.water {
+            background: rgba(0, 200, 255, 0.12);
+            color: #67e8f9;
+        }
+        .obs-tag.vegetation {
+            background: rgba(74, 222, 128, 0.12);
+            color: #4ade80;
+        }
+        .obs-tag.species {
+            background: rgba(251, 191, 36, 0.12);
+            color: #fbbf24;
+        }
+        .obs-tag.soil {
+            background: rgba(251, 146, 60, 0.12);
+            color: #fb923c;
+        }
+        .obs-tag.general {
+            background: rgba(167, 139, 250, 0.12);
+            color: #a78bfa;
+        }
+
+        .obs-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .obs-actions button {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .obs-actions button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Quick Add Button */
+        .quick-add-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            border: none;
+            color: #fff;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 40px rgba(0, 100, 255, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-add-btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 12px 50px rgba(0, 100, 255, 0.5);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a2332;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #e8edf5;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(0, 180, 255, 0.4);
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 0 30px rgba(0, 100, 255, 0.05);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.3)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 100, 255, 0.3);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(15, 22, 34, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: #e8edf5;
+            font-size: 14px;
+            z-index: 3000;
+            transform: translateX(calc(100% + 40px));
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .left-panel {
+                width: 280px;
+                min-width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .left-panel {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 300px;
+                min-width: 300px;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                background: rgba(15, 22, 34, 0.98);
+                backdrop-filter: blur(20px);
+            }
+
+            .left-panel.open {
+                transform: translateX(0);
+            }
+
+            .top-bar {
+                padding: 8px 16px;
+            }
+
+            .search-box {
+                min-width: 120px;
+            }
+
+            .search-box input {
+                font-size: 13px;
+            }
+
+            .top-bar-btn span:not(.emoji) {
+                display: none;
+            }
+
+            .bottom-panel {
+                padding: 12px 16px;
+            }
+
+            .modal {
+                padding: 24px;
+                margin: 12px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-add-btn {
+                bottom: 70px;
+                right: 16px;
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 16px;
+            }
+
+            .top-bar-actions {
+                gap: 8px;
+            }
+
+            .search-box {
+                min-width: 80px;
+                padding: 6px 12px;
+            }
+
+            .observation-item {
+                flex-direction: column;
+            }
+
+            .obs-thumb {
+                width: 100%;
+                height: 120px;
+            }
+        }
+
+        /* Animation keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="logo-section">
+                <div class="logo-icon">A</div>
+                <span class="logo-text">AETHER</span>
+            </div>
+            <div class="top-bar-actions">
+                <div class="search-box">
+                    <span class="search-icon">⌕</span>
+                    <input type="text" placeholder="Search projects, sites..." id="searchInput">
+                </div>
+                <button class="top-bar-btn" id="menuToggle" aria-label="Toggle menu">
+                    <span>☰</span>
+                    <span>Menu</span>
+                </button>
+                <button class="top-bar-btn primary" id="newProjectBtn">
+                    <span>+</span>
+                    <span>New Project</span>
+                </button>
+                <div class="avatar" title="User Profile">JD</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel -->
+            <aside class="left-panel" id="leftPanel">
+                <div class="panel-header">
+                    <div class="panel-title">Active <span>Projects</span></div>
+                    <span style="font-size:12px; color:rgba(255,255,255,0.3);" id="projectCount">4</span>
+                </div>
+
+                <div id="projectList">
+                    <!-- Projects rendered by JavaScript -->
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04);">
+                    <div class="panel-title" style="margin-bottom: 12px;">Recent <span>Observations</span></div>
+                    <div id="recentObservations">
+                        <!-- Rendered by JavaScript -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map"></div>
+
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <button class="map-control-btn" id="zoomIn" aria-label="Zoom in">+</button>
+                    <button class="map-control-btn" id="zoomOut" aria-label="Zoom out">−</button>
+                    <button class="map-control-btn" id="locateMe" aria-label="Locate me">⌖</button>
+                </div>
+
+                <!-- Quick Add Button -->
+                <button class="quick-add-btn" id="quickAddBtn" aria-label="Quick add observation">+</button>
+
+                <!-- Bottom Panel -->
+                <div class="bottom-panel" id="bottomPanel">
+                    <div class="bottom-panel-handle" id="panelHandle"></div>
+                    <div class="bottom-panel-content">
+                        <div class="observation-list">
+                            <div style="font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:12px;">
+                                Recent Activity — <span id="obsCount">0</span> observations
+                            </div>
+                            <div id="observationFeed">
+                                <!-- Rendered by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal fade-in">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">New Observation</h2>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <form id="observationForm">
+                <div class="form-group">
+                    <label class="form-label">Project</label>
+                    <select class="form-input form-select" id="formProject" required>
+                        <option value="">Select a project...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Observation Type</label>
+                    <select class="form-input form-select" id="formType" required>
+                        <option value="water">Water Quality</option>
+                        <option value="vegetation">Vegetation Survey</option>
+                        <option value="species">Species Sighting</option>
+                        <option value="soil">Soil Sample</option>
+                        <option value="general">General Observation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input class="form-input" type="text" id="formTitle" placeholder="e.g., Creek Sampling Point 3" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes (or speak with voice)</label>
+                    <textarea class="form-input form-textarea" id="formNotes" placeholder="Describe what you observed..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Latitude</label>
+                        <input class="form-input" type="text" id="formLat" placeholder="-37.8136">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Longitude</label>
+                        <input class="form-input" type="text" id="formLng" placeholder="144.9631">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Photo URL (optional)</label>
+                    <input class="form-input" type="text" id="formPhoto" placeholder="https://example.com/photo.jpg">
+                </div>
+                <button type="submit" class="form-submit">Save Observation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-title" id="toastTitle">Success</div>
+        <div class="toast-message" id="toastMessage">Observation saved</div>
+    </div>
+
+    <!-- Load Leaflet JavaScript after DOM -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // ============================================================
+        // AETHER - Complete Application Logic
+        // Version 1.0 - Single File Prototype
+        // ============================================================
+
+        // --- Data Store ---
+        const Store = {
+            projects: [{
+                id: 'proj-1',
+                name: 'Riverine Ecosystem Assessment',
+                client: 'Melbourne Water',
+                status: 'active',
+                progress: 65,
+                observations: [],
+                location: { lat: -37.8136, lng: 144.9631 }
+            }, {
+                id: 'proj-2',
+                name: 'Coastal Dune Restoration',
+                client: 'Parks Victoria',
+                status: 'active',
+                progress: 32,
+                observations: [],
+                location: { lat: -38.3901, lng: 142.4823 }
+            }, {
+                id: 'proj-3',
+                name: 'Biodiversity Monitoring Program',
+                client: 'Department of Environment',
+                status: 'active',
+                progress: 78,
+                observations: [],
+                location: { lat: -37.9564, lng: 145.1786 }
+            }, {
+                id: 'proj-4',
+                name: 'Mining Rehabilitation - Site 7B',
+                client: 'Rio Tinto',
+                status: 'warning',
+                progress: 45,
+                observations: [],
+                location: { lat: -27.4680, lng: 153.0234 }
+            }],
+            observations: [],
+            activeProjectId: 'proj-1'
+        };
+
+        // --- Sample Observations ---
+        function generateSampleObservations() {
+            const samples = [
+                { title: 'Water Sample - Site A', type: 'water', notes: 'pH 7.2, turbidity moderate, DO 7.8 mg/L', lat: -37.8136,
+                    lng: 144.9631, photo: '🌊' },
+                { title: 'Vegetation Transect #3', type: 'vegetation', notes: 'Dense canopy cover, understory dominated by Acacia melanoxylon',
+                    lat: -37.8136, lng: 144.9631, photo: '🌿' },
+                { title: 'Platypus Sighting', type: 'species', notes: 'Observed at 8:15 AM near the log jam', lat: -37.8136,
+                    lng: 144.9631, photo: '🦆' },
+                { title: 'Soil Sample - Zone 2', type: 'soil', notes: 'Clay loam, high organic matter, pH 6.5', lat: -37.8136,
+                    lng: 144.9631, photo: '🧪' },
+                { title: 'Water Quality - Downstream', type: 'water', notes: 'pH 6.9, turbidity low, excellent clarity', lat: -37
+                        .8136, lng: 144.9631, photo: '💧' },
+                { title: 'Koala Sighting', type: 'species', notes: 'Adult male in Eucalyptus tree, approximately 4 years old',
+                    lat: -37.8136, lng: 144.9631, photo: '🐨' }
+            ];
+
+            samples.forEach((s, i) => {
+                const obs = {
+                    id: `obs-${i + 1}`,
+                    projectId: 'proj-1',
+                    title: s.title,
+                    type: s.type,
+                    notes: s.notes,
+                    lat: s.lat + (Math.random() - 0.5) * 0.005,
+                    lng: s.lng + (Math.random() - 0.5) * 0.005,
+                    photo: s.photo,
+                    timestamp: new Date(Date.now() - i * 3600000).toISOString(),
+                    createdAt: new Date(Date.now() - i * 3600000).toISOString()
+                };
+                Store.observations.push(obs);
+                Store.projects[0].observations.push(obs.id);
+            });
+
+            // Add observations to other projects
+            const extraObs = [
+                { title: 'Dune Profile #2', type: 'general', notes: 'Erosion visible on foredune, 2m retreat', lat: -38.3901,
+                    lng: 142.4823, projectId: 'proj-2', photo: '🏖️' },
+                { title: 'Native Grass Survey', type: 'vegetation', notes: 'Good regeneration after planting, 80% coverage',
+                    lat: -37.9564, lng: 145.1786, projectId: 'proj-3', photo: '🌾' },
+                { title: 'Water Sample - Dam', type: 'water', notes: 'pH 7.5, algae present, turbidity high', lat: -27.4680,
+                    lng: 153.0234, projectId: 'proj-4', photo: '🟢' }
+            ];
+
+            extraObs.forEach((s, i) => {
+                const obs = {
+                    id: `obs-${Store.observations.length + 1}`,
+                    projectId: s.projectId,
+                    title: s.title,
+                    type: s.type || 'general',
+                    notes: s.notes || '',
+                    lat: s.lat + (Math.random() - 0.5) * 0.005,
+                    lng: s.lng + (Math.random() - 0.5) * 0.005,
+                    photo: s.photo || ['🌲', '🌳', '🌱', '🏞️', '📊'][i % 5],
+                    timestamp: new Date(Date.now() - (i + 3) * 7200000).toISOString(),
+                    createdAt: new Date(Date.now() - (i + 3) * 7200000).toISOString()
+                };
+                Store.observations.push(obs);
+                const project = Store.projects.find(p => p.id === s.projectId);
+                if (project) project.observations.push(obs.id);
+            });
+        }
+        generateSampleObservations();
+
+        // --- State ---
+        let map = null;
+        let markers = [];
+        let isPanelExpanded = false;
+        let selectedObservationId = null;
+        let mapInitialized = false;
+
+        // --- DOM References ---
+        const $ = (id) => document.getElementById(id);
+        const mapContainer = $('map');
+        const projectList = $('projectList');
+        const observationFeed = $('observationFeed');
+        const recentObservations = $('recentObservations');
+        const obsCount = $('obsCount');
+        const projectCount = $('projectCount');
+        const modalOverlay = $('modalOverlay');
+        const modalTitle = $('modalTitle');
+        const modalClose = $('modalClose');
+        const observationForm = $('observationForm');
+        const formProject = $('formProject');
+        const formType = $('formType');
+        const formTitle = $('formTitle');
+        const formNotes = $('formNotes');
+        const formLat = $('formLat');
+        const formLng = $('formLng');
+        const formPhoto = $('formPhoto');
+        const bottomPanel = $('bottomPanel');
+        const panelHandle = $('panelHandle');
+        const quickAddBtn = $('quickAddBtn');
+        const newProjectBtn = $('newProjectBtn');
+        const menuToggle = $('menuToggle');
+        const leftPanel = $('leftPanel');
+        const searchInput = $('searchInput');
+        const toast = $('toast');
+        const toastTitle = $('toastTitle');
+        const toastMessage = $('toastMessage');
+
+        // --- Toast System ---
+        let toastTimeout = null;
+
+        function showToast(title, message, duration = 3000) {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // --- Map Initialization ---
+        function initMap() {
+            try {
+                if (typeof L === 'undefined') {
+                    console.error('Leaflet not loaded');
+                    setTimeout(initMap, 500);
+                    return;
+                }
+
+                map = L.map('map', {
+                    center: [-37.8136, 144.9631],
+                    zoom: 12,
+                    zoomControl: false,
+                    attributionControl: false
+                });
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(map);
+
+                // Add attribution manually
+                const attribution = L.control.attribution({ position: 'bottomright' });
+                attribution.addAttribution('&copy; OpenStreetMap contributors &copy; CartoDB');
+                attribution.addTo(map);
+
+                // Zoom controls
+                $('zoomIn').addEventListener('click', () => map.zoomIn());
+                $('zoomOut').addEventListener('click', () => map.zoomOut());
+
+                // Locate user
+                $('locateMe').addEventListener('click', () => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+                                showToast('Location Found', 'Map centered on your location');
+                            },
+                            () => {
+                                showToast('Location Error', 'Unable to get your location. Using default.');
+                                map.setView([-37.8136, 144.9631], 12);
+                            }
+                        );
+                    } else {
+                        showToast('Not Supported', 'Geolocation is not supported by your browser');
+                    }
+                });
+
+                // Click on map to add observation
+                map.on('click', (e) => {
+                    const lat = e.latlng.lat.toFixed(6);
+                    const lng = e.latlng.lng.toFixed(6);
+                    formLat.value = lat;
+                    formLng.value = lng;
+                    openModal('New Observation');
+                    showToast('Location Set', `Coordinates: ${lat}, ${lng}`);
+                });
+
+                mapInitialized = true;
+                
+                // Load markers
+                updateMapMarkers();
+
+                // Resize map on window resize
+                window.addEventListener('resize', () => {
+                    if (map) setTimeout(() => map.invalidateSize(), 100);
+                });
+
+                // Initial resize after a moment
+                setTimeout(() => {
+                    if (map) map.invalidateSize();
+                }, 500);
+
+                console.log('✅ Map initialized successfully');
+            } catch (error) {
+                console.error('Map initialization error:', error);
+                // Show a fallback message on the map
+                const mapEl = document.getElementById('map');
+                if (mapEl) {
+                    mapEl.innerHTML = `
+                        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.3);flex-direction:column;gap:12px;">
+                            <div style="font-size:48px;">🗺️</div>
+                            <div>Map loading error</div>
+                            <div style="font-size:12px;">Please refresh the page</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // --- Map Markers ---
+        function updateMapMarkers() {
+            if (!map || !mapInitialized) return;
+
+            // Clear existing markers
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            // Show observations for active project
+            const activeProject = Store.projects.find(p => p.id === Store.activeProjectId);
+            if (!activeProject) return;
+
+            const projectObs = Store.observations.filter(o => o.projectId === Store.activeProjectId);
+
+            // Also show project location
+            try {
+                const projectMarker = L.circleMarker([activeProject.location.lat, activeProject.location.lng], {
+                    radius: 8,
+                    fillColor: '#00d4ff',
+                    color: '#0066ff',
+                    weight: 2,
+                    opacity: 0.6,
+                    fillOpacity: 0.3
+                }).addTo(map);
+                projectMarker.bindPopup(`<strong>${activeProject.name}</strong><br>${activeProject.client}`);
+                markers.push(projectMarker);
+            } catch (e) {
+                console.warn('Error adding project marker:', e);
+            }
+
+            // Observation markers
+            projectObs.forEach(obs => {
+                try {
+                    const colorMap = {
+                        water: '#67e8f9',
+                        vegetation: '#4ade80',
+                        species: '#fbbf24',
+                        soil: '#fb923c',
+                        general: '#a78bfa'
+                    };
+                    const color = colorMap[obs.type] || '#a78bfa';
+
+                    const marker = L.circleMarker([obs.lat, obs.lng], {
+                        radius: 6,
+                        fillColor: color,
+                        color: 'rgba(255,255,255,0.2)',
+                        weight: 1.5,
+                        opacity: 0.8,
+                        fillOpacity: 0.9
+                    }).addTo(map);
+
+                    const typeLabel = obs.type.charAt(0).toUpperCase() + obs.type.slice(1);
+                    marker.bindPopup(`
+                                <div style="color:#0a0e17; font-family: 'Inter', sans-serif; max-width:200px;">
+                                    <strong>${obs.title}</strong><br>
+                                    <span style="font-size:12px; color:#666;">${typeLabel}</span><br>
+                                    <span style="font-size:12px; color:#666;">${new Date(obs.timestamp).toLocaleDateString()}</span>
+                                    ${obs.photo ? `<br><span style="font-size:24px;">${obs.photo}</span>` : ''}
+                                    <br><button onclick="window.selectObservation('${obs.id}')" 
+                                            style="margin-top:6px; background:#0066ff; color:#fff; border:none; 
+                                                   padding:4px 12px; border-radius:6px; cursor:pointer; font-size:12px;">
+                                        View Details
+                                    </button>
+                                </div>
+                            `);
+
+                    markers.push(marker);
+                } catch (e) {
+                    console.warn('Error adding observation marker:', e);
+                }
+            });
+
+            // Fit map to show all markers
+            if (markers.length > 1) {
+                try {
+                    const group = L.featureGroup(markers);
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                } catch (e) {
+                    console.warn('Error fitting bounds:', e);
+                }
+            }
+        }
+
+        // --- Select Observation ---
+        window.selectObservation = function(obsId) {
+            const obs = Store.observations.find(o => o.id === obsId);
+            if (!obs) return;
+            selectedObservationId = obsId;
+            expandPanel();
+            renderObservationFeed();
+            showToast('Observation Selected', obs.title);
+
+            // Highlight on map
+            if (map && mapInitialized) {
+                // Find the marker by checking its popup content
+                markers.forEach(marker => {
+                    try {
+                        const popup = marker.getPopup();
+                        if (popup && popup.getContent) {
+                            const content = popup.getContent();
+                            if (content && content.includes(obsId)) {
+                                map.setView(marker.getLatLng(), 16);
+                                marker.openPopup();
+                            }
+                        }
+                    } catch (e) {
+                        // Skip this marker
+                    }
+                });
+            }
+        };
+
+        // --- Render Projects ---
+        function renderProjects() {
+            projectList.innerHTML = Store.projects.map(p => `
+                        <div class="project-card ${p.id === Store.activeProjectId ? 'active' : ''}" 
+                             data-project-id="${p.id}" onclick="window.switchProject('${p.id}')">
+                            <div class="project-card-header">
+                                <div class="project-name">${p.name}</div>
+                                <div class="project-status ${p.status === 'warning' ? 'warning' : ''}">
+                                    ${p.status === 'active' ? '● Active' : '⚠ Warning'}
+                                </div>
+                            </div>
+                            <div class="project-meta">
+                                <span>👤 ${p.client}</span>
+                                <span>📋 ${p.observations.length} obs</span>
+                            </div>
+                            <div class="project-progress">
+                                <div class="project-progress-bar" style="width: ${p.progress}%"></div>
+                            </div>
+                        </div>
+                    `).join('');
+            projectCount.textContent = Store.projects.length;
+        }
+
+        // --- Switch Project ---
+        window.switchProject = function(projectId) {
+            Store.activeProjectId = projectId;
+            renderProjects();
+            updateMapMarkers();
+            renderObservationFeed();
+            renderRecentObservations();
+            updateObsCount();
+
+            // Close panel on mobile
+            if (window.innerWidth <= 768) {
+                leftPanel.classList.remove('open');
+            }
+
+            const project = Store.projects.find(p => p.id === projectId);
+            if (project) {
+                showToast('Project Switched', project.name);
+            }
+        };
+
+        // --- Render Observation Feed ---
+        function renderObservationFeed() {
+            const projectObs = Store.observations
+                .filter(o => o.projectId === Store.activeProjectId)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (projectObs.length === 0) {
+                observationFeed.innerHTML = `
+                            <div style="text-align:center; padding:40px 0; color:rgba(255,255,255,0.2);">
+                                <div style="font-size:40px; margin-bottom:12px;">🌿</div>
+                                <div>No observations yet</div>
+                                <div style="font-size:12px; margin-top:4px;">Tap + to add your first observation</div>
+                            </div>
+                        `;
+                return;
+            }
+
+            observationFeed.innerHTML = projectObs.map(obs => `
+                        <div class="observation-item ${obs.id === selectedObservationId ? 'active' : ''}" 
+                             onclick="window.selectObservation('${obs.id}')">
+                            <div class="obs-thumb">
+                                ${obs.photo ? (obs.photo.startsWith('http') ? `<img src="${obs.photo}" alt="${obs.title}">` : obs.photo) : '📷'}
+                            </div>
+                            <div class="obs-details">
+                                <div class="obs-title">${obs.title}</div>
+                                <div class="obs-meta">
+                                    <span>${new Date(obs.timestamp).toLocaleDateString()}</span>
+                                    <span class="obs-tag ${obs.type}">${obs.type}</span>
+                                    ${obs.notes ? `<span>📝 ${obs.notes.substring(0, 60)}${obs.notes.length > 60 ? '...' : ''}</span>` : ''}
+                                </div>
+                                <div class="obs-actions">
+                                    <button onclick="event.stopPropagation(); window.selectObservation('${obs.id}')">View</button>
+                                    <button onclick="event.stopPropagation(); window.deleteObservation('${obs.id}')">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+
+            updateObsCount();
+        }
+
+        // --- Render Recent Observations (sidebar) ---
+        function renderRecentObservations() {
+            const allObs = Store.observations
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 4);
+
+            if (allObs.length === 0) {
+                recentObservations.innerHTML = `
+                            <div style="font-size:13px; color:rgba(255,255,255,0.2); text-align:center; padding:12px 0;">
+                                No recent observations
+                            </div>
+                        `;
+                return;
+            }
+
+            const typeEmoji = {
+                water: '💧',
+                vegetation: '🌿',
+                species: '🦋',
+                soil: '🧪',
+                general: '📝'
+            };
+
+            recentObservations.innerHTML = allObs.map(obs => `
+                        <div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); cursor:pointer;"
+                             onclick="window.switchProject('${obs.projectId}'); window.selectObservation('${obs.id}')">
+                            <span style="font-size:18px;">${typeEmoji[obs.type] || '📝'}</span>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:13px; color:#e8edf5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    ${obs.title}
+                                </div>
+                                <div style="font-size:11px; color:rgba(255,255,255,0.3);">
+                                    ${new Date(obs.timestamp).toLocaleDateString()}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+        }
+
+        // --- Update Observation Count ---
+        function updateObsCount() {
+            const count = Store.observations.filter(o => o.projectId === Store.activeProjectId).length;
+            obsCount.textContent = count;
+        }
+
+        // --- Panel Expand/Collapse ---
+        function expandPanel() {
+            isPanelExpanded = true;
+            bottomPanel.classList.add('expanded');
+        }
+
+        function collapsePanel() {
+            isPanelExpanded = false;
+            bottomPanel.classList.remove('expanded');
+        }
+
+        function togglePanel() {
+            if (isPanelExpanded) {
+                collapsePanel();
+            } else {
+                expandPanel();
+            }
+        }
+
+        // --- Modal ---
+        function openModal(title) {
+            modalTitle.textContent = title || 'New Observation';
+            modalOverlay.classList.add('active');
+            // Populate project dropdown
+            formProject.innerHTML = Store.projects.map(p =>
+                `<option value="${p.id}" ${p.id === Store.activeProjectId ? 'selected' : ''}>${p.name}</option>`
+            ).join('');
+            // Set default location from active project
+            const project = Store.projects.find(p => p.id === Store.activeProjectId);
+            if (project) {
+                formLat.value = project.location.lat.toFixed(6);
+                formLng.value = project.location.lng.toFixed(6);
+            }
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            observationForm.reset();
+        }
+
+        // --- Delete Observation ---
+        window.deleteObservation = function(obsId) {
+            if (!confirm('Delete this observation?')) return;
+            const obs = Store.observations.find(o => o.id === obsId);
+            if (obs) {
+                Store.observations = Store.observations.filter(o => o.id !== obsId);
+                const project = Store.projects.find(p => p.id === obs.projectId);
+                if (project) {
+                    project.observations = project.observations.filter(id => id !== obsId);
+                }
+                if (selectedObservationId === obsId) {
+                    selectedObservationId = null;
+                }
+                renderObservationFeed();
+                renderRecentObservations();
+                updateMapMarkers();
+                updateObsCount();
+                showToast('Deleted', `"${obs.title}" removed`);
+            }
+        };
+
+        // --- Save Observation ---
+        function saveObservation(e) {
+            e.preventDefault();
+
+            const projectId = formProject.value;
+            const type = formType.value;
+            const title = formTitle.value.trim();
+            const notes = formNotes.value.trim();
+            const lat = parseFloat(formLat.value);
+            const lng = parseFloat(formLng.value);
+            const photo = formPhoto.value.trim();
+
+            if (!projectId || !title) {
+                showToast('Error', 'Please fill in all required fields');
+                return;
+            }
+
+            if (isNaN(lat) || isNaN(lng)) {
+                showToast('Error', 'Please enter valid coordinates');
+                return;
+            }
+
+            const newObs = {
+                id: `obs-${Date.now()}`,
+                projectId: projectId,
+                title: title,
+                type: type,
+                notes: notes || '',
+                lat: lat,
+                lng: lng,
+                photo: photo || ['💧', '🌿', '🦋', '🧪', '📝'][Math.floor(Math.random() * 5)],
+                timestamp: new Date().toISOString(),
+                createdAt: new Date().toISOString()
+            };
+
+            Store.observations.push(newObs);
+            const project = Store.projects.find(p => p.id === projectId);
+            if (project) {
+                project.observations.push(newObs.id);
+            }
+
+            // Switch to the project if not active
+            if (projectId !== Store.activeProjectId) {
+                switchProject(projectId);
+            } else {
+                renderObservationFeed();
+                renderRecentObservations();
+                updateMapMarkers();
+                updateObsCount();
+            }
+
+            closeModal();
+            expandPanel();
+            showToast('Observation Saved', `"${title}" added to ${project ? project.name : 'project'}`);
+
+            // Highlight the new observation
+            setTimeout(() => {
+                selectObservation(newObs.id);
+            }, 300);
+        }
+
+        // --- New Project ---
+        function createNewProject() {
+            const name = prompt('Enter project name:');
+            if (!name) return;
+            const client = prompt('Enter client name:') || 'New Client';
+
+            const newProject = {
+                id: `proj-${Date.now()}`,
+                name: name,
+                client: client,
+                status: 'active',
+                progress: 0,
+                observations: [],
+                location: {
+                    lat: -37.8136 + (Math.random() - 0.5) * 0.5,
+                    lng: 144.9631 + (Math.random() - 0.5) * 0.5
+                }
+            };
+
+            Store.projects.push(newProject);
+            renderProjects();
+            switchProject(newProject.id);
+            showToast('Project Created', `${name} created successfully`);
+        }
+
+        // --- Search ---
+        function handleSearch(query) {
+            const q = query.toLowerCase().trim();
+            if (!q) {
+                renderProjects();
+                renderObservationFeed();
+                return;
+            }
+
+            // Filter projects
+            const filteredProjects = Store.projects.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                p.client.toLowerCase().includes(q)
+            );
+
+            // Filter observations
+            const filteredObs = Store.observations.filter(o =>
+                o.title.toLowerCase().includes(q) ||
+                o.notes.toLowerCase().includes(q) ||
+                o.type.toLowerCase().includes(q)
+            );
+
+            // Update UI
+            if (filteredProjects.length > 0) {
+                projectList.innerHTML = filteredProjects.map(p => `
+                            <div class="project-card ${p.id === Store.activeProjectId ? 'active' : ''}" 
+                                 data-project-id="${p.id}" onclick="window.switchProject('${p.id}')">
+                                <div class="project-card-header">
+                                    <div class="project-name">${p.name}</div>
+                                    <div class="project-status ${p.status === 'warning' ? 'warning' : ''}">
+                                        ${p.status === 'active' ? '● Active' : '⚠ Warning'}
+                                    </div>
+                                </div>
+                                <div class="project-meta">
+                                    <span>👤 ${p.client}</span>
+                                    <span>📋 ${p.observations.length} obs</span>
+                                </div>
+                                <div class="project-progress">
+                                    <div class="project-progress-bar" style="width: ${p.progress}%"></div>
+                                </div>
+                            </div>
+                        `).join('');
+            } else {
+                projectList.innerHTML = `<div style="color:rgba(255,255,255,0.2); text-align:center; padding:20px;">No projects found</div>`;
+            }
+
+            if (filteredObs.length > 0) {
+                observationFeed.innerHTML = filteredObs.map(obs => `
+                            <div class="observation-item">
+                                <div class="obs-thumb">${obs.photo || '📷'}</div>
+                                <div class="obs-details">
+                                    <div class="obs-title">${obs.title}</div>
+                                    <div class="obs-meta">
+                                        <span>${new Date(obs.timestamp).toLocaleDateString()}</span>
+                                        <span class="obs-tag ${obs.type}">${obs.type}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+            } else {
+                observationFeed.innerHTML =
+                    `<div style="color:rgba(255,255,255,0.2); text-align:center; padding:20px;">No observations found</div>`;
+            }
+        }
+
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            // Panel toggle
+            panelHandle.addEventListener('click', togglePanel);
+            bottomPanel.addEventListener('click', (e) => {
+                if (e.target === bottomPanel || e.target === panelHandle) return;
+                if (!isPanelExpanded) expandPanel();
+            });
+
+            // Quick add
+            quickAddBtn.addEventListener('click', () => {
+                openModal('New Observation');
+            });
+
+            // New project
+            newProjectBtn.addEventListener('click', createNewProject);
+
+            // Menu toggle (mobile)
+            menuToggle.addEventListener('click', () => {
+                leftPanel.classList.toggle('open');
+            });
+
+            // Modal controls
+            modalClose.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+
+            // Form submit
+            observationForm.addEventListener('submit', saveObservation);
+
+            // Search
+            searchInput.addEventListener('input', (e) => {
+                handleSearch(e.target.value);
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (modalOverlay.classList.contains('active')) {
+                        closeModal();
+                    }
+                    if (isPanelExpanded) {
+                        collapsePanel();
+                    }
+                }
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    openModal('New Observation');
+                }
+            });
+        }
+
+        // --- Initialize Application ---
+        function init() {
+            console.log('🌿 AETHER v1.0 initializing...');
+
+            try {
+                // Render initial data
+                renderProjects();
+                renderObservationFeed();
+                renderRecentObservations();
+                updateObsCount();
+
+                // Initialize map
+                initMap();
+
+                // Setup event listeners
+                setupEventListeners();
+
+                // Auto-expand panel on first load
+                setTimeout(() => {
+                    expandPanel();
+                }, 600);
+
+                console.log(`✅ AETHER v1.0 loaded successfully`);
+                console.log(`📊 ${Store.projects.length} projects, ${Store.observations.length} observations`);
+                console.log(`📍 Active project: ${Store.projects.find(p => p.id === Store.activeProjectId)?.name}`);
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                showToast('Error', 'Failed to initialize application. Please refresh.');
+            }
+        }
+
+        // Run on page load - wait for DOM and Leaflet
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        // Fallback: ensure Leaflet is loaded
+        let leafletCheckAttempts = 0;
+        function checkLeaflet() {
+            if (typeof L !== 'undefined') {
+                console.log('✅ Leaflet loaded successfully');
+                return;
+            }
+            leafletCheckAttempts++;
+            if (leafletCheckAttempts < 10) {
+                console.log(`⏳ Waiting for Leaflet... (attempt ${leafletCheckAttempts})`);
+                setTimeout(checkLeaflet, 500);
+            } else {
+                console.error('❌ Leaflet failed to load');
+                const mapEl = document.getElementById('map');
+                if (mapEl) {
+                    mapEl.innerHTML = `
+                        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.3);flex-direction:column;gap:12px;padding:20px;text-align:center;">
+                            <div style="font-size:48px;">🗺️</div>
+                            <div>Map library failed to load</div>
+                            <div style="font-size:12px;max-width:300px;">Please check your internet connection and refresh the page</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+        setTimeout(checkLeaflet, 100);
+    </script>
+
+</body>
+</html>
